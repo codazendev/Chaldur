@@ -13,6 +13,6 @@ tab_definition_function = G.UIDEF.challenges,
 '''
 position = 'at'
 payload = '''
-tab_definition_function = (Chaldur.config.use and G.UIDEF.challenges_new_model or G.UIDEF.challenges),
+tab_definition_function = (Chaldur.config.use and G.UIDEF.challenge_setup_option or G.UIDEF.challenges),
 '''
 match_indent = true
