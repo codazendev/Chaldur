@@ -2,14 +2,11 @@
     "id": "chaldur",
     "name": "Chaldur",
     "author": ["codazen"],
-    "description": "A modification to the challenge setup screen to ease use.",
+    "description": "Changes the Balatro challenge menu to be easier to use, similar to the Galdur mod.",
     "website_url": "https://github.com/codazendev/Chaldur",
     "prefix": "chaldur",
     "main_file": "chaldur.lua",
     "priority": -10000,
-    "badge_colour": "666665",
-    "badge_text_colour": "FFFFFF",
-    "display_name": "Chaldur",
     "version": "0.0.0~",
     "dependencies": [
         "Steamodded (>=1.*)"
