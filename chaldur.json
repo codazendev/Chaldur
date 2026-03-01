@@ -7,7 +7,7 @@
     "prefix": "chaldur",
     "main_file": "chaldur.lua",
     "priority": -10000,
-    "version": "0.0.0~",
+    "version": "0.1.0~",
     "dependencies": [
         "Steamodded (>=1.0.0~BETA-1224a)"
     ]
