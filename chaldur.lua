@@ -6,11 +6,15 @@ SMODS.Atlas({
     py = 32
 })
 
--- Definitions
+-- Mod setup definitions
 Chaldur = SMODS.current_mod
 Chaldur.config = SMODS.current_mod.config
 
-Chaldur.run_setup = {
+SMODS.load_file("src/config_tab.lua")()
+
+-- Mod variable definitions
+Chaldur.pages_to_add = {}           -- "Queue" of pages to add to Chaldur screen
+Chaldur.challenge_screen = {        -- Variables to track related to setting up/showing/operating the Chaldur screen
     choices = {
         deck = nil,
         stake = nil,
@@ -18,26 +22,24 @@ Chaldur.run_setup = {
         seed_temp = ''
     },
     deck_select_areas = {},
-    current_page = 1,
-    pages = {},
-    selected_deck_height = 52,
+    current_page = 1,               -- The currently active challenge selection page
+    pages = {},                     -- All available challenge selection pages
+    selected_deck_height = 52,      -- The height of the selected challenge deck
 }
 Chaldur.hover_index = 0
+G.E_MANAGER.queues.chaldur = {}     -- The Chaldur event queue
 
-Chaldur.test_mode = true
-
--- Chaldur event queue
-G.E_MANAGER.queues.chaldur = {}
-
--- Load Chaldur config tab
-SMODS.load_file("src/config_tab.lua")()
+-- Testing variable definitions
+Chaldur.test_mode = true            -- Enable or disable testing features for Chaldur development
 
 -- Function hooks
 
 -- Challenge select functions
 function G.UIDEF.challenges_new_model(from_game_over)
+    -- If the save profile has everything unlocked, make all challenges unlocked
     if G.PROFILES[G.SETTINGS.profile].all_unlocked then G.PROFILES[G.SETTINGS.profile].challenges_unlocked = #G.CHALLENGES end
 
+    -- Set up progress tracking UI elements
     if not G.PROFILES[G.SETTINGS.profile].challenges_unlocked then
         local deck_wins = 0
         for k, v in pairs(G.PROFILES[G.SETTINGS.profile].deck_usage) do
@@ -85,14 +87,6 @@ function G.UIDEF.challenges_new_model(from_game_over)
                 }},
             }},
         }},
-        G.F_DAILIES and {n=G.UIT.R, config={align = "cm", padding = 0.1, r = 0.1 ,colour = G.C.BLACK}, nodes={
-            {n=G.UIT.R, config={align = "cm", padding = 0.1}, nodes={
-                {n=G.UIT.T, config={text = localize('k_daily_run'), scale = 0.4, colour = G.C.UI.TEXT_LIGHT, shadow = true}},
-            }},
-            {n=G.UIT.R, config={align = "cl", minw = 8.5, minh = 4}, nodes={
-                G.UIDEF.daily_overview()
-            }}
-        }} or nil,
     }}
 end
 
