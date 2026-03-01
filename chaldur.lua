@@ -24,6 +24,8 @@ Chaldur.run_setup = {
 }
 Chaldur.hover_index = 0
 
+Chaldur.test_mode = true
+
 -- Chaldur event queue
 G.E_MANAGER.queues.chaldur = {}
 
