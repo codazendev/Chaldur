@@ -1,2 +1,5 @@
 # Ignore Lua LSP settings.
 .luarc.json
+
+# Ignore VSCodium workspace.
+Chaldur.code-workspace
