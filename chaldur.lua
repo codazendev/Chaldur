@@ -39,21 +39,10 @@ Chaldur.test_mode = true -- Enable or disable testing features for Chaldur devel
 
 -- Create a new UI definition for the Chaldur overlay.
 function G.UIDEF.challenge_setup_option(from_game_over)
-    -- Add any valid pages in pages to add
-    -- Clear pages to add
+    -- initial logs for helpful things
+    sendInfoMessage(tostring("There are "..#G.CHALLENGES.." challenges"), "ChaldurLogger")
 
-    -- Load saved game if it exists
-
-    -- Call prepare challenge
-    -- Use MEMORY to set the initial choices of the challenge screen (deck, stake, seed) (in my case it'll be challenge, stake, seed, I think)
-    -- Set current challenge type (?)
-
-    -- Set up deck preview thing (deck names are split so it works, going to find a better way personally)
-
-    -- Call generate deck card areas
-    -- Call generate stake card areas
-
-    -- Some quick start stuff that I'll worry about once MVP is done
+    -- Generate the Chaldur UI
     local chaldur_screen = {
         n = G.UIT.ROOT,
         config = {align = "cm", r = 0.1, padding = 0.2, colour = G.C.BLACK},
@@ -71,8 +60,8 @@ function G.UIDEF.challenge_setup_option(from_game_over)
                     {n = G.UIT.C,
                     config = {align = "tm"},
                     nodes = {
-                        {n = G.UIT.R, config = {align = "cm", r = 0.1, minw = 8, minh = 4, colour = G.C.BLUE}, nodes = {
-                            {n = G.UIT.T, config = {text = "Challenge Select Page", colour = G.C.WHITE, scale = 0.4}},
+                        {n = G.UIT.R, nodes = {
+                            generate_challenge_select_ui(),
                         }},
                         {n = G.UIT.R, config = {align = "cm", minh = 0.2}, nodes = {
                             {n = G.UIT.T, config = {text = "Spacer", colour = G.C.WHITE, scale = 0.4}},
@@ -137,7 +126,8 @@ function G.UIDEF.challenge_setup_option(from_game_over)
     return chaldur_screen
 end
 
-function generate_challenge_card_areas_ui()
+-- Create the Chaldur screen challenge selection grid
+function generate_challenge_select_ui()
     local challenge_grid = {n = G.UIT.C, config = {align = "cm", minh = 3.3, minw = 5}, nodes = {}}
     local count = 1
     for i = 1, 2 do
@@ -145,28 +135,25 @@ function generate_challenge_card_areas_ui()
 
         for j = 1, 6 do
             if count > #G.CHALLENGES then return end
+            local challenge_slot_card_area = CardArea(G.ROOM.T.w, G.ROOM.T.h, G.CARD_W, G.CARD_H, {card_limit = 1, type = 'deck'})
 
-            local challenge_slot = {n = G.UIT.O, config = {Object = Chaldur.challenge_setup.challenge_select_areas[count], r = 0.1, id = "challenge_select_"..count, focus_args = {snap_to = true}},}
+            local challenge_slot = {
+                n = G.UIT.C, config = {align = "cm"}, nodes = {
+                    {n = G.UIT.O,
+                    config = {
+                        object = challenge_slot_card_area},
+                        id = "challenge_"..count,
+                    }
+                }}
             table.insert(challenge_row.nodes, challenge_slot)
             count = count + 1
+            local challenge_card = Card(challenge_slot_card_area.T.x, challenge_slot_card_area.T.y, G.CARD_W, G.CARD_H, G.P_CENTER_POOLS.Back[1], G.P_CENTER_POOLS.Back[1])
+            challenge_slot_card_area:emplace(challenge_card)
         end
         table.insert(challenge_grid.nodes, challenge_row)
     end
 
-    return challenge_grid
+    return {n = G.UIT.R, config = {align = "cm", r = 0.1, colour = G.C.GREY}, nodes = {
+                challenge_grid
+            }}
 end
-
--- Set up initial choices for the Chaldur overlay.
--- function Chaldur.prepare_challenge_setup()
---     Chaldur.challenge_setup.choices.challenge = G.CHALLENGES.1
--- end
-
--- Main select functions
-
-
-
--- Challenge preview functions
-
-
-
--- Function overrides
