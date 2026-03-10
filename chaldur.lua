@@ -79,7 +79,7 @@ function G.UIDEF.challenge_setup_option(from_game_over)
                 nodes = {
                     {n = G.UIT.C, config = {colour = G.C.ETERNAL}, nodes = {}},
                     {n = G.UIT.C, config = {align = "cm", r = 0.1, minh = 1, colour = G.C.BLUE}, nodes = {
-                        {n = G.UIT.T, config = {text = "< Stake Select >", colour = G.C.WHITE, scale = 0.4}}
+                        generate_stake_select_ui()
                     }},
                     {n = G.UIT.C, config = {minw = spacing}, nodes = {}},
                     {n = G.UIT.C, config = {align = "cm", r = 0.1, minw = 4, minh = 1, colour = G.C.BOOSTER}, nodes = {
@@ -134,4 +134,41 @@ function generate_challenge_select_ui()
     end
 
     return challenge_grid
+end
+
+-- Create the Chaldur screen challenge selection grid switcher
+function generate_challenge_select_switcher_ui()
+    
+end
+
+
+-- Create the Chaldur screen stake selection bar
+function generate_stake_select_ui()
+    local stake_row = {n = G.UIT.R, config = {align = "cm", r = 0.1, padding = spacing, colour = G.C.BLACK}, nodes = {}}
+    local count = 1
+    for i = 1, 8 do
+        if count > #G.P_CENTER_POOLS.Stake then return end
+        local stake_slot_card_area = CardArea(G.ROOM.T.w * 0.116, G.ROOM.T.h * 0.209, 3.4*14/41, 3.4*14/41, {type = 'deck'})
+        local stake_slot = {
+            n = G.UIT.C, nodes = {
+                {n = G.UIT.O, config = {object = stake_slot_card_area}, id = "stake_"..count}
+            }
+        }
+        table.insert(stake_row.nodes, stake_slot)
+        local stake_card = Card(stake_slot_card_area.T.x, stake_slot_card_area.T.y, 3.4*14/41, 3.4*14/41, G.P_CENTERS.b_red, G.P_CENTERS.b_red)
+        stake_card.sprite_facing = 'back'
+        stake_card.facing = 'back'
+        stake_card.children.back = Sprite(stake_card.T.x, stake_card.T.y, 3.4*14/41, 3.4*14/41, G.ASSET_ATLAS[G.P_CENTER_POOLS.Stake[count].atlas], G.P_CENTER_POOLS.Stake[count].pos)
+        stake_card.children.back.states.collide.can = false
+        stake_card.children.back:set_role({major = stake_card, role_type = 'Glued', draw_major = stake_card})
+        stake_slot_card_area:emplace(stake_card)
+        count = count + 1
+    end
+
+    return stake_row
+end
+
+-- Create the Chaldur screen stake selection bar switcher
+function generate_stake_select_switcher_ui()
+    
 end
