@@ -36,87 +36,66 @@ Chaldur.test_mode = true -- Enable or disable testing features for Chaldur devel
 
 
 -- ### Challenge select functions ###
+local spacing = 0.25
 
 -- Create a new UI definition for the Chaldur overlay.
 function G.UIDEF.challenge_setup_option(from_game_over)
-    -- initial logs for helpful things
-    sendInfoMessage(tostring("There are "..#G.CHALLENGES.." challenges"), "ChaldurLogger")
-
-    -- Generate the Chaldur UI
     local chaldur_screen = {
         n = G.UIT.ROOT,
-        config = {align = "cm", r = 0.1, padding = 0.2, colour = G.C.BLACK},
+        config = {align = "cm", colour = G.C.CLEAR},
         nodes = {
             {n = G.UIT.C,
+            config = {align = "cr"},
             nodes = {
-                {n = G.UIT.R,
-                config = {align = "cm", padding = 0.2, colour = G.C.RED},
-                nodes ={
-                    {n = G.UIT.T, config = {text = "Chaldur Screen", colour = G.C.WHITE, scale = 0.5}},
-                }},
-                {n = G.UIT.R,
-                config = {align = "cl", padding = 0.2, colour = G.C.PALE_GREEN},
+                {n = G.UIT.R, -- ROW 1: Challenge Select and Challenge Preview
+                config = {align = "cr"},
                 nodes = {
-                    {n = G.UIT.C,
-                    config = {align = "tm"},
+                    generate_challenge_select_ui(),
+                    {n = G.UIT.C, config = {minw = spacing}, nodes = {}},
+                    {n = G.UIT.C, config = {align = "cm", r = 0.1, minw = 4, colour = G.C.GREY},
                     nodes = {
-                        {n = G.UIT.R, nodes = {
-                            generate_challenge_select_ui(),
-                        }},
-                        {n = G.UIT.R, config = {align = "cm", minh = 0.2}, nodes = {
-                            {n = G.UIT.T, config = {text = "Spacer", colour = G.C.WHITE, scale = 0.4}},
-                        }},
-                        {n = G.UIT.R, config = {align = "cm", r = 0.1, minw = 8, minh = 1, colour = G.C.VOUCHER}, nodes = {
-                            {n = G.UIT.T, config = {text = "< Challenge Select Page Switcher >", colour = G.C.WHITE, scale = 0.4}},
-                        }}
-                    }},
-                    {n = G.UIT.C, config = {align = "cm", minw = 0.2}, nodes = {
-                        {n = G.UIT.T, config = {text = "Spacer", colour = G.C.WHITE, scale = 0.4}},
-                    }},
-                    {n = G.UIT.C,
-                    config = {align = "cm"},
-                    nodes = {
-                        {n = G.UIT.R, config = {align = "cm", r = 0.1, minw = 4, minh = 4, colour = G.C.GREY}, nodes = {
-                            {n = G.UIT.T, config = {text = "Challenge Preview", colour = G.C.WHITE, scale = 0.4}},
-                        }},
-                        {n = G.UIT.R, config = {align = "cm", minh = 0.2}, nodes = {
-                            {n = G.UIT.T, config = {text = "Spacer", colour = G.C.WHITE, scale = 0.4}},
-                        }},
-                        {n = G.UIT.R, config = {align = "cm", r = 0.1, minw = 4, minh = 1, colour = G.C.CHANCE}, nodes = {
-                            {n = G.UIT.T, config = {text = "Random Challenge", colour = G.C.WHITE, scale = 0.4}},
-                        }},
-                        {n = G.UIT.R, config = {align = "cm", minh = 0.2}, nodes = {
-                            {n = G.UIT.T, config = {text = "Spacer", colour = G.C.WHITE, scale = 0.4}},
-                        }},
-                        {n = G.UIT.R, config = {align = "cm", r = 0.1, minw = 4, minh = 1, colour = G.C.CHIPS}, nodes = {
-                            {n = G.UIT.T, config = {text = "Last Challenge", colour = G.C.WHITE, scale = 0.4}},
-                        }}
+                        {n = G.UIT.T, config = {text = "Challenge Preview", colour = G.C.WHITE, scale = 0.4}}
                     }},
                 }},
-                {n = G.UIT.R,
-                config = {align = "cl", padding = 0.2, colour = G.C.ORANGE},
+                {n = G.UIT.R, config = {minh = spacing}, nodes = {}},
+                {n = G.UIT.R, -- ROW 2: Challenge Page Switcher, Random Challenge, Last Challenge
+                config = {align = "cr"},
                 nodes = {
-                    {n = G.UIT.C, config = {align = "cm", r = 0.1, minw = 8, minh = 1, colour = G.C.BLUE}, nodes = {
-                        {n = G.UIT.T, config = {text = "< Stake Select >", colour = G.C.WHITE, scale = 0.4}},
+                    {n = G.UIT.C, config = {align = "cm", r = 0.1, colour = G.C.VOUCHER}, nodes = {
+                        {n = G.UIT.T, config = {text = "< Challenge Select Page Switcher >", colour = G.C.WHITE, scale = 0.4}},
                     }},
-                    {n = G.UIT.C, config = {align = "cm", minw = 1}, nodes = {
-                        {n = G.UIT.T, config = {text = "Spacer", colour = G.C.WHITE, scale = 0.4}},
+                    {n = G.UIT.C, config = {minw = spacing}, nodes = {}},
+                    {n = G.UIT.C, config = {align = "cm", r = 0.1, minw = 4, minh = 1, colour = G.C.CHANCE}, nodes = {
+                        {n = G.UIT.T, config = {text = "Random Challenge", colour = G.C.WHITE, scale = 0.4}}
                     }},
-                    {n = G.UIT.C, config = {align = "cm", r = 0.1, minw = 4, minh = 1, colour = G.C.BOOSTER}, nodes = {
-                            {n = G.UIT.T, config = {text = "Last Stake", colour = G.C.WHITE, scale = 0.4}},
+                    {n = G.UIT.C, config = {minw = spacing}, nodes = {}},
+                    {n = G.UIT.C, config = {align = "cm", r = 0.1, minw = 4, minh = 1, colour = G.C.CHIPS}, nodes = {
+                        {n = G.UIT.T, config = {text = "Last Challenge", colour = G.C.WHITE, scale = 0.4}}
                     }}
                 }},
-                {n = G.UIT.R,
-                config = {align = "cr", padding = 0.2, colour = G.C.PURPLE},
+                {n = G.UIT.R, config = {minh = spacing}, nodes = {}},
+                {n = G.UIT.R, -- ROW 3: Stake Select and Switcher, Last Stake
+                config = {align = "cr"},
+                nodes = {
+                    {n = G.UIT.C, config = {colour = G.C.ETERNAL}, nodes = {}},
+                    {n = G.UIT.C, config = {align = "cm", r = 0.1, minh = 1, colour = G.C.BLUE}, nodes = {
+                        {n = G.UIT.T, config = {text = "< Stake Select >", colour = G.C.WHITE, scale = 0.4}}
+                    }},
+                    {n = G.UIT.C, config = {minw = spacing}, nodes = {}},
+                    {n = G.UIT.C, config = {align = "cm", r = 0.1, minw = 4, minh = 1, colour = G.C.BOOSTER}, nodes = {
+                            {n = G.UIT.T, config = {text = "Last Stake", colour = G.C.WHITE, scale = 0.4}}
+                    }}
+                }},
+                {n = G.UIT.R, config = {minh = spacing}, nodes = {}},
+                {n = G.UIT.R, -- ROW 4: Seed Input, Play
+                config = {align = "cr"},
                 nodes = {
                     {n = G.UIT.C, config = {align = "cm", r = 0.1, minw = 8, minh = 1, colour = G.C.FILTER}, nodes = {
-                        {n = G.UIT.T, config = {text = "Seed Input", colour = G.C.WHITE, scale = 0.4}},
+                        {n = G.UIT.T, config = {text = "Seed Input", colour = G.C.WHITE, scale = 0.4}}
                     }},
-                    {n = G.UIT.C, config = {align = "cm", minw = 1}, nodes = {
-                        {n = G.UIT.T, config = {text = "Spacer", colour = G.C.WHITE, scale = 0.4}},
-                    }},
+                    {n = G.UIT.C, config = {minw = spacing}, nodes = {}},
                     {n = G.UIT.C, config = {align = "cm", r = 0.1, minw = 4, minh = 1, colour = G.C.ETERNAL}, nodes = {
-                            {n = G.UIT.T, config = {text = "Play", colour = G.C.WHITE, scale = 0.4}},
+                        {n = G.UIT.T, config = {text = "Play", colour = G.C.WHITE, scale = 0.4}}
                     }}
                 }}
             }}
@@ -128,7 +107,7 @@ end
 
 -- Create the Chaldur screen challenge selection grid
 function generate_challenge_select_ui()
-    local challenge_grid = {n = G.UIT.C, nodes = {}}
+    local challenge_grid = {n = G.UIT.C, config = {align = "cm", r = 0.1, padding = spacing, colour = G.C.BLACK}, nodes = {}}
     local count = 1
     for i = 1, 2 do
         local challenge_row = {n = G.UIT.R, nodes = {}}
@@ -154,7 +133,5 @@ function generate_challenge_select_ui()
         table.insert(challenge_grid.nodes, challenge_row)
     end
 
-    return {n = G.UIT.R, config = {align = "cm", r = 0.1, colour = G.C.GREY}, nodes = {
-                challenge_grid
-            }}
+    return challenge_grid
 end
