@@ -128,27 +128,28 @@ end
 
 -- Create the Chaldur screen challenge selection grid
 function generate_challenge_select_ui()
-    local challenge_grid = {n = G.UIT.C, config = {align = "cm", minh = 3.3, minw = 5}, nodes = {}}
+    local challenge_grid = {n = G.UIT.C, nodes = {}}
     local count = 1
     for i = 1, 2 do
-        local challenge_row = {n = G.UIT.R, config = {colour = G.C.LIGHT}, nodes = {}}
+        local challenge_row = {n = G.UIT.R, nodes = {}}
 
         for j = 1, 6 do
             if count > #G.CHALLENGES then return end
-            local challenge_slot_card_area = CardArea(G.ROOM.T.w, G.ROOM.T.h, G.CARD_W, G.CARD_H, {card_limit = 1, type = 'deck'})
-
+            local challenge_slot_card_area = CardArea(G.ROOM.T.w, G.ROOM.T.h, G.CARD_W, G.CARD_H, {type = 'deck'})
             local challenge_slot = {
-                n = G.UIT.C, config = {align = "cm"}, nodes = {
-                    {n = G.UIT.O,
-                    config = {
-                        object = challenge_slot_card_area},
-                        id = "challenge_"..count,
-                    }
-                }}
+                n = G.UIT.C, nodes = {
+                    {n = G.UIT.O, config = {object = challenge_slot_card_area}, id = "challenge_"..count}
+                }
+            }
             table.insert(challenge_row.nodes, challenge_slot)
-            count = count + 1
-            local challenge_card = Card(challenge_slot_card_area.T.x, challenge_slot_card_area.T.y, G.CARD_W, G.CARD_H, G.P_CENTER_POOLS.Back[1], G.P_CENTER_POOLS.Back[1])
+            local challenge_card = Card(challenge_slot_card_area.T.x, challenge_slot_card_area.T.y, G.CARD_W, G.CARD_H, G.P_CENTERS.b_challenge, G.P_CENTERS.b_challenge)
+            challenge_card.sprite_facing = 'back'
+            challenge_card.facing = 'back'
+            challenge_card.children.back = Sprite(challenge_card.T.x, challenge_card.T.y, challenge_card.T.w, challenge_card.T.h, G.ASSET_ATLAS[G.P_CENTERS.b_challenge.unlocked and G.P_CENTERS.b_challenge.atlas or 'centers'], G.P_CENTERS.b_challenge.unlocked and G.P_CENTERS.b_challenge.pos or {x = 4, y = 0})
+            challenge_card.children.back.states.collide.can = false
+            challenge_card.children.back:set_role({major = challenge_card, role_type = 'Glued', draw_major = challenge_card})
             challenge_slot_card_area:emplace(challenge_card)
+            count = count + 1
         end
         table.insert(challenge_grid.nodes, challenge_row)
     end
