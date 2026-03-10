@@ -10,11 +10,11 @@ SMODS.Atlas({
 Chaldur = SMODS.current_mod
 Chaldur.config = SMODS.current_mod.config
 
-SMODS.load_file("src/config_tab.lua")()
+assert(SMODS.load_file("src/config_tab.lua"))()
+assert(SMODS.load_file('utils/CodaUtility.lua'))()
 
 -- Mod variable definitions
-Chaldur.pages_to_add = {}   -- "Queue" of pages to add to Chaldur screen
-Chaldur.challenge_setup = { -- Variables to track related to setting up/showing/operating the Chaldur screen
+Chaldur.challenge_setup = {
     choices = {
         challenge = nil,
         stake = nil,
@@ -22,23 +22,17 @@ Chaldur.challenge_setup = { -- Variables to track related to setting up/showing/
         seed_temp = ''
     },
     challenge_select_areas = {},
-    current_page = 1, -- The currently active challenge selection page
-    pages = {},       -- All available challenge selection pages
+    stake_select_areas = {},
+    current_page = 1,
+    pages = {},
 }
-Chaldur.hover_index = 0
-G.E_MANAGER.queues.chaldur = {} -- The Chaldur event queue
 
--- Testing variable definitions
-Chaldur.test_mode = true -- Enable or disable testing features for Chaldur development
+-- ### UI Creation ###
 
+-- Global variables
+local spacing = 0.24
 
--- ### Function hooks ###
-
-
--- ### Challenge select functions ###
-local spacing = 0.25
-
--- Create a new UI definition for the Chaldur overlay.
+-- Create the Chaldur screen UI definition
 function G.UIDEF.challenge_setup_option(from_game_over)
     local chaldur_screen = {
         n = G.UIT.ROOT,
@@ -50,7 +44,10 @@ function G.UIDEF.challenge_setup_option(from_game_over)
                 {n = G.UIT.R, -- ROW 1: Challenge Select and Challenge Preview
                 config = {align = "cr"},
                 nodes = {
-                    generate_challenge_select_ui(),
+                    {n = G.UIT.C, config = {align = "cm", r = 0.1, padding = spacing, colour = G.C.BLACK}, nodes = {
+                        create_challenge_select_page_ui(),
+                        create_challenge_select_page_cycler()
+                    }},
                     {n = G.UIT.C, config = {minw = spacing}, nodes = {}},
                     {n = G.UIT.C, config = {align = "cm", r = 0.1, minw = 4, colour = G.C.GREY},
                     nodes = {
@@ -61,10 +58,6 @@ function G.UIDEF.challenge_setup_option(from_game_over)
                 {n = G.UIT.R, -- ROW 2: Challenge Page Switcher, Random Challenge, Last Challenge
                 config = {align = "cr"},
                 nodes = {
-                    {n = G.UIT.C, config = {align = "cm", r = 0.1, colour = G.C.VOUCHER}, nodes = {
-                        {n = G.UIT.T, config = {text = "< Challenge Select Page Switcher >", colour = G.C.WHITE, scale = 0.4}},
-                    }},
-                    {n = G.UIT.C, config = {minw = spacing}, nodes = {}},
                     {n = G.UIT.C, config = {align = "cm", r = 0.1, minw = 4, minh = 1, colour = G.C.CHANCE}, nodes = {
                         {n = G.UIT.T, config = {text = "Random Challenge", colour = G.C.WHITE, scale = 0.4}}
                     }},
@@ -77,9 +70,9 @@ function G.UIDEF.challenge_setup_option(from_game_over)
                 {n = G.UIT.R, -- ROW 3: Stake Select and Switcher, Last Stake
                 config = {align = "cr"},
                 nodes = {
-                    {n = G.UIT.C, config = {colour = G.C.ETERNAL}, nodes = {}},
-                    {n = G.UIT.C, config = {align = "cm", r = 0.1, minh = 1, colour = G.C.BLUE}, nodes = {
-                        generate_stake_select_ui()
+                    {n = G.UIT.C, config = {align = "cm", r = 0.1, padding = spacing, colour = G.C.BLACK}, nodes = {
+                        create_stake_select_page_ui(),
+                        create_stake_select_page_cycler()
                     }},
                     {n = G.UIT.C, config = {minw = spacing}, nodes = {}},
                     {n = G.UIT.C, config = {align = "cm", r = 0.1, minw = 4, minh = 1, colour = G.C.BOOSTER}, nodes = {
@@ -105,9 +98,10 @@ function G.UIDEF.challenge_setup_option(from_game_over)
     return chaldur_screen
 end
 
--- Create the Chaldur screen challenge selection grid
-function generate_challenge_select_ui()
-    local challenge_grid = {n = G.UIT.C, config = {align = "cm", r = 0.1, padding = spacing, colour = G.C.BLACK}, nodes = {}}
+-- Create the challenge select page
+function create_challenge_select_page_ui()
+    local challenge_grid = {n = G.UIT.C, nodes = {}}
+    local challenge_ui = {n = G.UIT.R, nodes = {challenge_grid}}
     local count = 1
     for i = 1, 2 do
         local challenge_row = {n = G.UIT.R, nodes = {}}
@@ -133,18 +127,31 @@ function generate_challenge_select_ui()
         table.insert(challenge_grid.nodes, challenge_row)
     end
 
-    return challenge_grid
+    return challenge_ui
 end
 
--- Create the Chaldur screen challenge selection grid switcher
-function generate_challenge_select_switcher_ui()
+-- Populate the challenge select page with challenge cards
+function populate_challenge_select_page(page)
     
 end
 
+-- Create the challenge select page cycler
+function create_challenge_select_page_cycler()
+    local challenge_cycler = CodaUtility.page_cycler({
+        object_table = G.CHALLENGES,
+        page_size = 8,
+        key = 'challenge_cycler',
+        switch_func = G.FUNCS.change_challenge_select_page,
+        h = 1,
+        colour = G.C.RED
+    })
 
--- Create the Chaldur screen stake selection bar
-function generate_stake_select_ui()
-    local stake_row = {n = G.UIT.R, config = {align = "cm", r = 0.1, padding = spacing, colour = G.C.BLACK}, nodes = {}}
+    return challenge_cycler
+end
+
+-- Create the stake select page
+function create_stake_select_page_ui()
+    local stake_row = {n = G.UIT.R, nodes = {}}
     local count = 1
     for i = 1, 8 do
         if count > #G.P_CENTER_POOLS.Stake then return end
@@ -168,7 +175,29 @@ function generate_stake_select_ui()
     return stake_row
 end
 
--- Create the Chaldur screen stake selection bar switcher
-function generate_stake_select_switcher_ui()
+-- Populate the stake select page with stake cards
+function populate_stake_select_page(page)
     
+end
+
+-- Create the stake select page cycler
+function create_stake_select_page_cycler()
+    local stake_cycler = CodaUtility.page_cycler({
+        object_table = G.P_CENTER_POOLS.Stake,
+        page_size = 8,
+        key = 'stake_cycler',
+        switch_func = G.FUNCS.change_stake_select_page,
+        h = 1,
+        colour = G.C.RED
+    })
+
+    return {n = G.UIT.R, config = {align = "cm"}, nodes = {stake_cycler}}
+end
+
+G.FUNCS.change_challenge_select_page = function(args)
+    populate_challenge_select_page(args.to)
+end
+
+G.FUNCS.change_stake_select_page = function(args)
+    populate_stake_select_page(args.to)
 end
