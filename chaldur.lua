@@ -10,7 +10,7 @@ SMODS.Atlas({
 Chaldur = SMODS.current_mod
 Chaldur.config = SMODS.current_mod.config
 
-assert(SMODS.load_file("src/config_tab.lua"))()
+assert(SMODS.load_file('src/config_tab.lua'))()
 assert(SMODS.load_file('utils/CodaUtility.lua'))()
 
 -- Mod variable definitions
@@ -30,65 +30,88 @@ Chaldur.challenge_setup = {
 -- ### UI Creation ###
 
 -- Global variables
-local spacing = 0.24
+local spacing = 0.18
 
 -- Create the Chaldur screen UI definition
 function G.UIDEF.challenge_setup_option(from_game_over)
     local chaldur_screen = {
         n = G.UIT.ROOT,
-        config = {align = "cm", colour = G.C.CLEAR},
+        config = {align = 'cm', colour = G.C.CLEAR},
         nodes = {
             {n = G.UIT.C,
-            config = {align = "cr"},
             nodes = {
-                {n = G.UIT.R, -- ROW 1: Challenge Select and Challenge Preview
-                config = {align = "cr"},
+                {n = G.UIT.R, -- ROW 1: Challenge Select, Challenge Preview, Challenge Page Switcher, Random Challenge, Last Challenge
+                config = {align = 'cl'},
                 nodes = {
-                    {n = G.UIT.C, config = {align = "cm", r = 0.1, padding = spacing, colour = G.C.BLACK}, nodes = {
+                    {n = G.UIT.C, config = {align = 'cm', r = 0.1, padding = spacing, colour = G.C.BLACK}, nodes = {
                         create_challenge_select_page_ui(),
                         create_challenge_select_page_cycler()
                     }},
                     {n = G.UIT.C, config = {minw = spacing}, nodes = {}},
-                    {n = G.UIT.C, config = {align = "cm", r = 0.1, minw = 4, colour = G.C.GREY},
+                    {n = G.UIT.C,
                     nodes = {
-                        {n = G.UIT.T, config = {text = "Challenge Preview", colour = G.C.WHITE, scale = 0.4}}
+                        {n = G.UIT.R, config = {align = 'cm', r = 0.1, minw = 4, minh = 4, padding = spacing, colour = G.C.BLACK}, nodes = {
+                            {n = G.UIT.C, config = {align = 'cm'}, nodes = {
+                                {n = G.UIT.R, config = {align = 'cm'}, nodes = {
+                                    {n = G.UIT.T, config = {text = 'Challenge', colour = G.C.WHITE, scale = 0.6}},
+                                }},
+                                {n = G.UIT.R, config = {align = 'cm'}, nodes = {
+                                    {n = G.UIT.T, config = {text = 'Name', colour = G.C.WHITE, scale = 0.6}},
+                                }},
+                                {n = G.UIT.R, config = {align = 'cm', minh = G.CARD_H}, nodes = {
+                                    {n = G.UIT.T, config = {text = 'Preview? Rules?', colour = G.C.WHITE, scale = 0.4}},
+                                }},
+                                {n = G.UIT.R, config = {align = 'cm'}, nodes = {
+                                    {n = G.UIT.T, config = {text = 'SELECTED', colour = G.C.WHITE, scale = 0.6}},
+                                }}
+                            }},
+                            
+                        }},
+                        {n = G.UIT.R, config = {minh = spacing}, nodes = {}},
+                        {n = G.UIT.R, nodes = {
+                            {n = G.UIT.C, config = {align = 'cm', r = 0.1, minw = 2, minh = 1, colour = G.C.CHANCE}, nodes = {
+                                {n = G.UIT.R, config = {align = 'cm'}, nodes = {
+                                    {n = G.UIT.T, config = {text = 'Random', colour = G.C.WHITE, scale = 0.4}},
+                                }},
+                                {n = G.UIT.R, config = {align = 'cm'}, nodes = {
+                                    {n = G.UIT.T, config = {text = 'Challenge', colour = G.C.WHITE, scale = 0.4}}
+                                }}
+                            }},
+                            {n = G.UIT.C, config = {minw = spacing}, nodes = {}},
+                            {n = G.UIT.C, config = {align = 'cm', r = 0.1, minw = 2, minh = 1, colour = G.C.CHIPS}, nodes = {
+                                {n = G.UIT.R, config = {align = 'cm'}, nodes = {
+                                    {n = G.UIT.T, config = {text = 'Last', colour = G.C.WHITE, scale = 0.4}},
+                                }},
+                                {n = G.UIT.R, config = {align = 'cm'}, nodes = {
+                                    {n = G.UIT.T, config = {text = 'Challenge', colour = G.C.WHITE, scale = 0.4}}
+                                }}
+                            }}
+                        }}
                     }},
-                }},
-                {n = G.UIT.R, config = {minh = spacing}, nodes = {}},
-                {n = G.UIT.R, -- ROW 2: Challenge Page Switcher, Random Challenge, Last Challenge
-                config = {align = "cr"},
-                nodes = {
-                    {n = G.UIT.C, config = {align = "cm", r = 0.1, minw = 4, minh = 1, colour = G.C.CHANCE}, nodes = {
-                        {n = G.UIT.T, config = {text = "Random Challenge", colour = G.C.WHITE, scale = 0.4}}
-                    }},
-                    {n = G.UIT.C, config = {minw = spacing}, nodes = {}},
-                    {n = G.UIT.C, config = {align = "cm", r = 0.1, minw = 4, minh = 1, colour = G.C.CHIPS}, nodes = {
-                        {n = G.UIT.T, config = {text = "Last Challenge", colour = G.C.WHITE, scale = 0.4}}
-                    }}
                 }},
                 {n = G.UIT.R, config = {minh = spacing}, nodes = {}},
                 {n = G.UIT.R, -- ROW 3: Stake Select and Switcher, Last Stake
-                config = {align = "cr"},
+                config = {align = 'cl'},
                 nodes = {
-                    {n = G.UIT.C, config = {align = "cm", r = 0.1, padding = spacing, colour = G.C.BLACK}, nodes = {
+                    {n = G.UIT.C, config = {align = 'cm', r = 0.1, padding = spacing, colour = G.C.BLACK}, nodes = {
                         create_stake_select_page_ui(),
                         create_stake_select_page_cycler()
                     }},
                     {n = G.UIT.C, config = {minw = spacing}, nodes = {}},
-                    {n = G.UIT.C, config = {align = "cm", r = 0.1, minw = 4, minh = 1, colour = G.C.BOOSTER}, nodes = {
-                            {n = G.UIT.T, config = {text = "Last Stake", colour = G.C.WHITE, scale = 0.4}}
+                    {n = G.UIT.C, config = {align = 'cm', r = 0.1, minw = 4, minh = 1, colour = G.C.BOOSTER}, nodes = {
+                            {n = G.UIT.T, config = {text = 'Last Stake', colour = G.C.WHITE, scale = 0.4}}
                     }}
                 }},
                 {n = G.UIT.R, config = {minh = spacing}, nodes = {}},
                 {n = G.UIT.R, -- ROW 4: Seed Input, Play
-                config = {align = "cr"},
+                config = {align = 'cl'},
                 nodes = {
-                    {n = G.UIT.C, config = {align = "cm", r = 0.1, minw = 8, minh = 1, colour = G.C.FILTER}, nodes = {
-                        {n = G.UIT.T, config = {text = "Seed Input", colour = G.C.WHITE, scale = 0.4}}
+                    {n = G.UIT.C, config = {align = 'cm', r = 0.1, minw = 8, minh = 1, colour = G.C.FILTER}, nodes = {
+                        {n = G.UIT.T, config = {text = 'Seed Input', colour = G.C.WHITE, scale = 0.4}}
                     }},
                     {n = G.UIT.C, config = {minw = spacing}, nodes = {}},
-                    {n = G.UIT.C, config = {align = "cm", r = 0.1, minw = 4, minh = 1, colour = G.C.ETERNAL}, nodes = {
-                        {n = G.UIT.T, config = {text = "Play", colour = G.C.WHITE, scale = 0.4}}
+                    {n = G.UIT.C, config = {align = 'cm', r = 0.1, minw = 4, minh = 1, colour = G.C.ETERNAL}, nodes = {
+                        {n = G.UIT.T, config = {text = 'Play', colour = G.C.WHITE, scale = 0.4}}
                     }}
                 }}
             }}
@@ -104,14 +127,14 @@ function create_challenge_select_page_ui()
     local challenge_ui = {n = G.UIT.R, nodes = {challenge_grid}}
     local count = 1
     for i = 1, 2 do
-        local challenge_row = {n = G.UIT.R, nodes = {}}
+        local challenge_row = {n = G.UIT.R, config = {align = 'cm'}, nodes = {}}
 
-        for j = 1, 6 do
+        for j = 1, 5 do
             if count > #G.CHALLENGES then return end
             local challenge_slot_card_area = CardArea(G.ROOM.T.w, G.ROOM.T.h, G.CARD_W, G.CARD_H, {type = 'deck'})
             local challenge_slot = {
                 n = G.UIT.C, nodes = {
-                    {n = G.UIT.O, config = {object = challenge_slot_card_area}, id = "challenge_"..count}
+                    {n = G.UIT.O, config = {object = challenge_slot_card_area}, id = 'challenge_'..count}
                 }
             }
             table.insert(challenge_row.nodes, challenge_slot)
@@ -139,7 +162,7 @@ end
 function create_challenge_select_page_cycler()
     local challenge_cycler = CodaUtility.page_cycler({
         object_table = G.CHALLENGES,
-        page_size = 8,
+        page_size = 10,
         key = 'challenge_cycler',
         switch_func = G.FUNCS.change_challenge_select_page,
         h = 1,
@@ -151,14 +174,14 @@ end
 
 -- Create the stake select page
 function create_stake_select_page_ui()
-    local stake_row = {n = G.UIT.R, nodes = {}}
+    local stake_row = {n = G.UIT.R, config = {align = 'cm', minw = G.CARD_W * 5}, nodes = {}}
     local count = 1
     for i = 1, 8 do
         if count > #G.P_CENTER_POOLS.Stake then return end
-        local stake_slot_card_area = CardArea(G.ROOM.T.w * 0.116, G.ROOM.T.h * 0.209, 3.4*14/41, 3.4*14/41, {type = 'deck'})
+        local stake_slot_card_area = CardArea(G.ROOM.T.w * 0.116, G.ROOM.T.h * 0.209, G.CARD_W * 5 / 8, G.CARD_W * 5 / 8, {type = 'deck'})
         local stake_slot = {
             n = G.UIT.C, nodes = {
-                {n = G.UIT.O, config = {object = stake_slot_card_area}, id = "stake_"..count}
+                {n = G.UIT.O, config = {object = stake_slot_card_area}, id = 'stake_'..count}
             }
         }
         table.insert(stake_row.nodes, stake_slot)
@@ -191,7 +214,7 @@ function create_stake_select_page_cycler()
         colour = G.C.RED
     })
 
-    return {n = G.UIT.R, config = {align = "cm"}, nodes = {stake_cycler}}
+    return {n = G.UIT.R, config = {align = 'cm'}, nodes = {stake_cycler}}
 end
 
 G.FUNCS.change_challenge_select_page = function(args)
