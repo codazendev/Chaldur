@@ -22,9 +22,9 @@ Chaldur.challenge_setup = {
         seed_temp = ''
     },
     challenge_select_areas = {},
+    current_challenge_page = 1,
     stake_select_areas = {},
-    current_page = 1,
-    pages = {},
+    current_stake_page = 1,
 }
 
 Chaldur.test_mode = true
@@ -142,6 +142,11 @@ function G.UIDEF.challenge_setup_option(from_game_over)
     return chaldur_screen
 end
 
+-- Generate the challenge select page card areas
+function generate_challenge_select_page_card_areas()
+    
+end
+
 -- Create the challenge select page
 function create_challenge_select_page_ui()
     local challenge_grid = {n = G.UIT.C, nodes = {}}
@@ -152,31 +157,48 @@ function create_challenge_select_page_ui()
 
         for j = 1, 5 do
             if count > #G.CHALLENGES then return end
-            local challenge_slot_card_area = CardArea(G.ROOM.T.w, G.ROOM.T.h, G.CARD_W, G.CARD_H, {type = 'deck'})
+            Chaldur.challenge_setup.challenge_select_areas[count] = CardArea(G.ROOM.T.w, G.ROOM.T.h, G.CARD_W, G.CARD_H, {type = 'deck'})
             local challenge_slot = {
                 n = G.UIT.C, nodes = {
-                    {n = G.UIT.O, config = {object = challenge_slot_card_area}, id = 'challenge_'..count}
+                    {n = G.UIT.O, config = {object = Chaldur.challenge_setup.challenge_select_areas[count]}, id = 'challenge_'..count}
                 }
             }
             table.insert(challenge_row.nodes, challenge_slot)
-            local challenge_card = Card(challenge_slot_card_area.T.x, challenge_slot_card_area.T.y, G.CARD_W, G.CARD_H, G.P_CENTERS.b_challenge, G.P_CENTERS.b_challenge)
-            challenge_card.sprite_facing = 'back'
-            challenge_card.facing = 'back'
-            challenge_card.children.back = Sprite(challenge_card.T.x, challenge_card.T.y, challenge_card.T.w, challenge_card.T.h, G.ASSET_ATLAS[G.P_CENTERS.b_challenge.unlocked and G.P_CENTERS.b_challenge.atlas or 'centers'], G.P_CENTERS.b_challenge.unlocked and G.P_CENTERS.b_challenge.pos or {x = 4, y = 0})
-            challenge_card.children.back.states.collide.can = false
-            challenge_card.children.back:set_role({major = challenge_card, role_type = 'Glued', draw_major = challenge_card})
-            challenge_slot_card_area:emplace(challenge_card)
             count = count + 1
         end
         table.insert(challenge_grid.nodes, challenge_row)
     end
+
+    populate_challenge_select_page(Chaldur.challenge_setup.current_challenge_page)
 
     return challenge_ui
 end
 
 -- Populate the challenge select page with challenge cards
 function populate_challenge_select_page(page)
-    
+    local count = 1 + (page - 1) * 10
+    for i = 1, 10 do
+        if count > #G.CHALLENGES then return end
+        local challenge_card = Card(Chaldur.challenge_setup.challenge_select_areas[i].T.x, Chaldur.challenge_setup.challenge_select_areas[i].T.y, G.CARD_W, G.CARD_H, G.P_CENTERS.b_challenge, G.P_CENTERS.b_challenge)
+        challenge_card.sprite_facing = 'back'
+        challenge_card.facing = 'back'
+        challenge_card.children.back = Sprite(challenge_card.T.x, challenge_card.T.y, challenge_card.T.w, challenge_card.T.h, G.ASSET_ATLAS[G.P_CENTERS.b_challenge.unlocked and G.P_CENTERS.b_challenge.atlas or 'centers'], G.P_CENTERS.b_challenge.unlocked and G.P_CENTERS.b_challenge.pos or {x = 4, y = 0})
+        challenge_card.children.back.states.collide.can = false
+        challenge_card.children.back:set_role({major = challenge_card, role_type = 'Glued', draw_major = challenge_card})
+        Chaldur.challenge_setup.challenge_select_areas[i]:emplace(challenge_card)
+        count = count + 1
+    end
+end
+
+-- Clear the stake select page of stake cards
+function clear_challenge_select_page()
+    if not Chaldur.challenge_setup.challenge_select_areas then return end
+    for i = 1, #Chaldur.challenge_setup.challenge_select_areas do
+        if Chaldur.challenge_setup.challenge_select_areas[i].cards then
+            remove_all(Chaldur.challenge_setup.challenge_select_areas[i].cards)
+            Chaldur.challenge_setup.challenge_select_areas[i].cards = {}
+        end
+    end
 end
 
 -- Create the challenge select page cycler
@@ -192,35 +214,62 @@ function create_challenge_select_page_cycler()
     return challenge_cycler
 end
 
+G.FUNCS.change_challenge_select_page = function(args)
+    clear_challenge_select_page()
+    populate_challenge_select_page(args.to)
+end
+
+-- Generate the stake select page card areas
+function generate_stake_select_page_card_areas()
+    
+end
+
 -- Create the stake select page
 function create_stake_select_page_ui()
     local stake_row = {n = G.UIT.R, config = {align = 'cm', minw = G.CARD_W * 5}, nodes = {}}
     local count = 1
     for i = 1, 8 do
         if count > #G.P_CENTER_POOLS.Stake then return end
-        local stake_slot_card_area = CardArea(G.ROOM.T.w * 0.116, G.ROOM.T.h * 0.209, G.CARD_W * 5 / 8, G.CARD_W * 5 / 8, {type = 'deck'})
+        Chaldur.challenge_setup.stake_select_areas[i] = CardArea(G.ROOM.T.w * 0.116, G.ROOM.T.h * 0.209, G.CARD_W * 5 / 8, G.CARD_W * 5 / 8, {type = 'deck'})
         local stake_slot = {
             n = G.UIT.C, nodes = {
-                {n = G.UIT.O, config = {object = stake_slot_card_area}, id = 'stake_'..count}
+                {n = G.UIT.O, config = {object = Chaldur.challenge_setup.stake_select_areas[i]}, id = 'stake_'..count}
             }
         }
         table.insert(stake_row.nodes, stake_slot)
-        local stake_card = Card(stake_slot_card_area.T.x, stake_slot_card_area.T.y, 3.4*14/41, 3.4*14/41, G.P_CENTERS.b_red, G.P_CENTERS.b_red)
-        stake_card.sprite_facing = 'back'
-        stake_card.facing = 'back'
-        stake_card.children.back = Sprite(stake_card.T.x, stake_card.T.y, 3.4*14/41, 3.4*14/41, G.ASSET_ATLAS[G.P_CENTER_POOLS.Stake[count].atlas], G.P_CENTER_POOLS.Stake[count].pos)
-        stake_card.children.back.states.collide.can = false
-        stake_card.children.back:set_role({major = stake_card, role_type = 'Glued', draw_major = stake_card})
-        stake_slot_card_area:emplace(stake_card)
         count = count + 1
     end
+
+    populate_stake_select_page(Chaldur.challenge_setup.current_stake_page)
 
     return stake_row
 end
 
 -- Populate the stake select page with stake cards
 function populate_stake_select_page(page)
-    
+    local count = 1 + (page - 1) * 8
+    for i = 1, 8 do
+        if count > #G.P_CENTER_POOLS.Stake then return end
+        local stake_card = Card(Chaldur.challenge_setup.stake_select_areas[i].T.x, Chaldur.challenge_setup.stake_select_areas[i].T.y, 3.4*14/41, 3.4*14/41, G.P_CENTERS.b_red, G.P_CENTERS.b_red)
+        stake_card.sprite_facing = 'back'
+        stake_card.facing = 'back'
+        stake_card.children.back = Sprite(stake_card.T.x, stake_card.T.y, 3.4*14/41, 3.4*14/41, G.ASSET_ATLAS[G.P_CENTER_POOLS.Stake[i].atlas], G.P_CENTER_POOLS.Stake[i].pos)
+        stake_card.children.back.states.collide.can = false
+        stake_card.children.back:set_role({major = stake_card, role_type = 'Glued', draw_major = stake_card})
+        Chaldur.challenge_setup.stake_select_areas[i]:emplace(stake_card)
+        count = count + 1
+    end
+end
+
+-- Clear the stake select page of stake cards
+function clear_stake_select_page()
+    if not Chaldur.challenge_setup.stake_select_areas then return end
+    for i = 1, #Chaldur.challenge_setup.stake_select_areas do
+        if Chaldur.challenge_setup.stake_select_areas[i].cards then
+            remove_all(Chaldur.challenge_setup.stake_select_areas[i].cards)
+            Chaldur.challenge_setup.stake_select_areas[i].cards = {}
+        end
+    end
 end
 
 -- Create the stake select page cycler
@@ -236,11 +285,8 @@ function create_stake_select_page_cycler()
     return {n = G.UIT.R, config = {align = 'cm'}, nodes = {stake_cycler}}
 end
 
-G.FUNCS.change_challenge_select_page = function(args)
-    populate_challenge_select_page(args.to)
-end
-
 G.FUNCS.change_stake_select_page = function(args)
+    clear_stake_select_page()
     populate_stake_select_page(args.to)
 end
 
