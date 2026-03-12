@@ -35,16 +35,20 @@ Chaldur.test_mode = true
 local spacing = 0.18
 
 -- Create the Chaldur screen UI definition
-function G.UIDEF.challenge_setup_option(from_game_over)
+function G.UIDEF.challenge_setup_option()
     local chaldur_screen = {
         n = G.UIT.ROOT,
-        config = {align = 'cm'},
+        config = {align = 'cm', colour = G.C.CLEAR},
         nodes = {
             {n = G.UIT.C,
             nodes = {
                 {n = G.UIT.R, -- ROW 1: Challenge Select, Challenge Preview, Challenge Page Switcher, Random Challenge, Last Challenge
                 config = {align = 'cl'},
                 nodes = {
+                    {n = G.UIT.C, config = {align = 'cm', r = 0.1, padding = spacing, colour = G.C.L_BLACK, outline = 1, outline_color = G.C.UI.OUTLINE_LIGHT}, nodes = {
+                        {n = G.UIT.T, config = {text = 'Challenge', colour = G.C.WHITE, scale = 0.5, vert = true}}
+                    }},
+                    {n = G.UIT.C, config = {minw = spacing}, nodes = {}},
                     {n = G.UIT.C, config = {align = 'cm', r = 0.1, padding = spacing, colour = G.C.BLACK}, nodes = {
                         {n = G.UIT.R, nodes = {
                             {n = G.UIT.C, config = {align = 'cm'}, nodes = {
@@ -253,7 +257,7 @@ function populate_stake_select_page(page)
         local stake_card = Card(Chaldur.challenge_setup.stake_select_areas[i].T.x, Chaldur.challenge_setup.stake_select_areas[i].T.y, 3.4*14/41, 3.4*14/41, G.P_CENTERS.b_red, G.P_CENTERS.b_red)
         stake_card.sprite_facing = 'back'
         stake_card.facing = 'back'
-        stake_card.children.back = Sprite(stake_card.T.x, stake_card.T.y, 3.4*14/41, 3.4*14/41, G.ASSET_ATLAS[G.P_CENTER_POOLS.Stake[i].atlas], G.P_CENTER_POOLS.Stake[i].pos)
+        stake_card.children.back = Sprite(stake_card.T.x, stake_card.T.y, 3.4*14/41, 3.4*14/41, G.ASSET_ATLAS[G.P_CENTER_POOLS.Stake[count].atlas], G.P_CENTER_POOLS.Stake[count].pos)
         stake_card.children.back.states.collide.can = false
         stake_card.children.back:set_role({major = stake_card, role_type = 'Glued', draw_major = stake_card})
         Chaldur.challenge_setup.stake_select_areas[i]:emplace(stake_card)
