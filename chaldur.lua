@@ -76,7 +76,7 @@ end
 -- Global variables
 local spacing = 0.18
 
--- Create the Chaldur screen UI definition
+-- The Chaldur screen UI definition
 function G.UIDEF.challenge_setup_option()
     local chaldur_screen = {
         n = G.UIT.ROOT,
@@ -84,7 +84,7 @@ function G.UIDEF.challenge_setup_option()
         nodes = {
             {n = G.UIT.C,
             nodes = {
-                {n = G.UIT.R, -- ROW 1: Challenge Select, Challenge Preview, Challenge Page Switcher, Random Challenge, Last Challenge
+                {n = G.UIT.R, -- ROW 1: Challenge Select
                 config = {align = 'cl'},
                 nodes = {
                     {n = G.UIT.C, config = {align = 'cm', r = 0.1, padding = spacing, colour = G.C.L_BLACK, outline = 1, outline_color = G.C.UI.OUTLINE_LIGHT}, nodes = {
@@ -133,7 +133,7 @@ function G.UIDEF.challenge_setup_option()
                     }},
                 }},
                 {n = G.UIT.R, config = {minh = spacing}, nodes = {}},
-                {n = G.UIT.R, -- ROW 2: Stake Select, Stake Preview, Stake Page Switcher, Random Stake, Last Stake
+                {n = G.UIT.R, -- ROW 2: Stake Select
                 config = {align = 'cl'},
                 nodes = {
                     {n = G.UIT.C, config = {align = 'cm', r = 0.1, padding = spacing, colour = G.C.L_BLACK, outline = 1, outline_color = G.C.UI.OUTLINE_LIGHT}, nodes = {
@@ -182,7 +182,7 @@ function G.UIDEF.challenge_setup_option()
                     }}
                 }},
                 {n = G.UIT.R, config = {minh = spacing}, nodes = {}},
-                {n = G.UIT.R, -- ROW 3: Seed Input, Play
+                {n = G.UIT.R, -- ROW 3: Seed Input and Play
                 config = {align = 'cl'},
                 nodes = {
                     {n = G.UIT.C, config = {align = 'cm', r = 0.1, minw = 8, minh = 1, colour = G.C.FILTER}, nodes = {
@@ -387,3 +387,14 @@ if Chaldur.test_mode then
         })
     end
 end
+
+-- challenge previews need to communicate:
+-- name
+-- custom rules
+-- modifier rules
+-- jokers
+-- consumeables
+-- vouchers
+-- banned cards
+-- banned tags
+-- banned other
