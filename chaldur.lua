@@ -27,7 +27,49 @@ Chaldur.challenge_setup = {
     current_stake_page = 1,
 }
 
+Chaldur.challenge_preview_text = {
+    preview_text = 'test'
+}
+
+Chaldur.stake_preview_text = {
+    preview_text = 'test'
+}
+
 Chaldur.test_mode = true
+
+-- ### Function Overrides ###
+
+local card_click_ref = Card.click
+-- Insert custom logic around the vanilla card click logic
+function Card:click()
+    if self.params.challenge_card and self.config.center.unlocked then
+        Chaldur.challenge_setup.choices.challenge = Back(self.config.center)
+        Chaldur.challenge_preview_text.preview_text = G.CHALLENGES[get_challenge_int_from_id(self.params.challenge_id)].name
+        Chaldur.select_challenge()
+    elseif self.params.stake_card and not self.params.stake_chip_locked then
+        Chaldur.challenge_setup.choices.stake = self.params.stake
+        Chaldur.stake_preview_text.preview_text = G.P_CENTER_POOLS.Stake[self.params.stake].name
+        Chaldur.select_stake()
+    else
+        card_click_ref(self)
+    end
+end
+
+-- Update UI when a challenge is selected
+function Chaldur.select_challenge()
+    -- Galdur.populate_deck_preview(Galdur.run_setup.choices.deck, silent)
+
+    local dyna_text_object = G.OVERLAY_MENU:get_UIE_by_ID('challenge_name').config.object
+    dyna_text_object.scale = 0.6 / math.max(1, string.len(Chaldur.challenge_preview_text.preview_text) / 16)
+end
+
+-- Update UI when a stake is selected
+function Chaldur.select_stake()
+    -- Galdur.populate_deck_preview(Galdur.run_setup.choices.deck, silent)
+
+    local dyna_text_object = G.OVERLAY_MENU:get_UIE_by_ID('stake_name').config.object
+    dyna_text_object.scale = 0.6 / math.max(1, string.len(Chaldur.stake_preview_text.preview_text) / 16)
+end
 
 -- ### UI Creation ###
 
@@ -64,14 +106,18 @@ function G.UIDEF.challenge_setup_option()
                     nodes = {
                         {n = G.UIT.R, config = {align = 'cm', r = 0.1, minw = 4, colour = G.C.BLACK}, nodes = {
                             {n = G.UIT.C, config = {align = 'cm'}, nodes = {
-                                {n = G.UIT.R, config = {align = 'cm'}, nodes = {
-                                    {n = G.UIT.T, config = {text = 'Challenge Name', colour = G.C.WHITE, scale = 0.4}},
+                                {n = G.UIT.R, config = {align = 'cm', minh = 1}, nodes = {
+                                    -- {n = G.UIT.T, config = {text = 'Challenge Name', colour = G.C.WHITE, scale = 0.4}},
+                                    {n=G.UIT.O, config = {id = 'challenge_name', object = DynaText({
+                                        string = {{ref_table = Chaldur.challenge_preview_text, ref_value = 'preview_text'}},
+                                        scale = 0.6 / math.max(1, string.len(Chaldur.challenge_preview_text.preview_text) / 16),
+                                        colours = {G.C.GREY},
+                                        pop_in_rate = 5,
+                                        silent = true
+                                    })}}
                                 }},
                                 {n = G.UIT.R, config = {align = 'cm'}, nodes = {
-                                    {n = G.UIT.T, config = {text = 'Preview', colour = G.C.WHITE, scale = 0.4}},
-                                }},
-                                {n = G.UIT.R, config = {align = 'cm'}, nodes = {
-                                    {n = G.UIT.T, config = {text = 'SELECTED', colour = G.C.WHITE, scale = 0.4}},
+                                    {n = G.UIT.T, config = {text = 'Challenge Preview', colour = G.C.WHITE, scale = 0.4}},
                                 }}
                             }},
                         }},
@@ -90,6 +136,10 @@ function G.UIDEF.challenge_setup_option()
                 {n = G.UIT.R, -- ROW 2: Stake Select, Stake Preview, Stake Page Switcher, Random Stake, Last Stake
                 config = {align = 'cl'},
                 nodes = {
+                    {n = G.UIT.C, config = {align = 'cm', r = 0.1, padding = spacing, colour = G.C.L_BLACK, outline = 1, outline_color = G.C.UI.OUTLINE_LIGHT}, nodes = {
+                        {n = G.UIT.T, config = {text = 'Stake', colour = G.C.WHITE, scale = 0.5, vert = true}}
+                    }},
+                    {n = G.UIT.C, config = {minw = spacing}, nodes = {}},
                     {n = G.UIT.C, config = {align = 'cm', r = 0.1, padding = spacing, colour = G.C.BLACK}, nodes = {
                         {n = G.UIT.R, nodes = {
                             {n = G.UIT.C, config = {align = 'cm'}, nodes = {
@@ -105,14 +155,18 @@ function G.UIDEF.challenge_setup_option()
                     nodes = {
                         {n = G.UIT.R, config = {align = 'cm', r = 0.1, minw = 4, colour = G.C.BLACK}, nodes = {
                             {n = G.UIT.C, config = {align = 'cm'}, nodes = {
-                                {n = G.UIT.R, config = {align = 'cm'}, nodes = {
-                                    {n = G.UIT.T, config = {text = 'Stake Name', colour = G.C.WHITE, scale = 0.4}},
+                                {n = G.UIT.R, config = {align = 'cm', minh = 1}, nodes = {
+                                    -- {n = G.UIT.T, config = {text = 'Stake Name', colour = G.C.WHITE, scale = 0.4}},
+                                    {n=G.UIT.O, config = {id = 'stake_name', object = DynaText({
+                                        string = {{ref_table = Chaldur.stake_preview_text, ref_value = 'preview_text'}},
+                                        scale = 0.6 / math.max(1, string.len(Chaldur.stake_preview_text.preview_text) / 16),
+                                        colours = {G.C.GREY},
+                                        pop_in_rate = 5,
+                                        silent = true
+                                    })}}
                                 }},
                                 {n = G.UIT.R, config = {align = 'cm'}, nodes = {
-                                    {n = G.UIT.T, config = {text = 'Preview', colour = G.C.WHITE, scale = 0.4}},
-                                }},
-                                {n = G.UIT.R, config = {align = 'cm'}, nodes = {
-                                    {n = G.UIT.T, config = {text = 'SELECTED', colour = G.C.WHITE, scale = 0.4}},
+                                    {n = G.UIT.T, config = {text = 'Stake Preview', colour = G.C.WHITE, scale = 0.4}},
                                 }}
                             }},
                         }},
@@ -183,7 +237,14 @@ function populate_challenge_select_page(page)
     local count = 1 + (page - 1) * 10
     for i = 1, 10 do
         if count > #G.CHALLENGES then return end
-        local challenge_card = Card(Chaldur.challenge_setup.challenge_select_areas[i].T.x, Chaldur.challenge_setup.challenge_select_areas[i].T.y, G.CARD_W, G.CARD_H, G.P_CENTERS.b_challenge, G.P_CENTERS.b_challenge)
+        local challenge_card = Card(
+            Chaldur.challenge_setup.challenge_select_areas[i].T.x,
+            Chaldur.challenge_setup.challenge_select_areas[i].T.y,
+            G.CARD_W,
+            G.CARD_H,
+            G.P_CENTERS.b_challenge,
+            G.P_CENTERS.b_challenge,
+            {challenge_card = true, challenge_id = G.CHALLENGES[count].id})
         challenge_card.sprite_facing = 'back'
         challenge_card.facing = 'back'
         challenge_card.children.back = Sprite(challenge_card.T.x, challenge_card.T.y, challenge_card.T.w, challenge_card.T.h, G.ASSET_ATLAS[G.P_CENTERS.b_challenge.unlocked and G.P_CENTERS.b_challenge.atlas or 'centers'], G.P_CENTERS.b_challenge.unlocked and G.P_CENTERS.b_challenge.pos or {x = 4, y = 0})
@@ -254,7 +315,14 @@ function populate_stake_select_page(page)
     local count = 1 + (page - 1) * 8
     for i = 1, 8 do
         if count > #G.P_CENTER_POOLS.Stake then return end
-        local stake_card = Card(Chaldur.challenge_setup.stake_select_areas[i].T.x, Chaldur.challenge_setup.stake_select_areas[i].T.y, 3.4*14/41, 3.4*14/41, G.P_CENTERS.b_red, G.P_CENTERS.b_red)
+        local stake_card = Card(
+            Chaldur.challenge_setup.stake_select_areas[i].T.x,
+            Chaldur.challenge_setup.stake_select_areas[i].T.y,
+            3.4*14/41,
+            3.4*14/41,
+            G.P_CENTERS.b_red,
+            G.P_CENTERS.b_red,
+            {stake_card = true, stake = count})
         stake_card.sprite_facing = 'back'
         stake_card.facing = 'back'
         stake_card.children.back = Sprite(stake_card.T.x, stake_card.T.y, 3.4*14/41, 3.4*14/41, G.ASSET_ATLAS[G.P_CENTER_POOLS.Stake[count].atlas], G.P_CENTER_POOLS.Stake[count].pos)
@@ -298,24 +366,24 @@ end
 if Chaldur.test_mode then
     for i = 1, 24 do
         SMODS.Challenge({
-            key = 'test_challenge_'..i
+            key = 'test_challenge_'..i,
+            name = 'Test Challenge '..i,
+            id = 'test_challenge'..i,
+            rules = {
+                custom = {},
+                modifiers = {}
+            },
+            jokers = {},
+            consumeables = {},
+            vouchers = {},
+            deck = {
+                type = 'Challenge Deck'
+            },
+            restrictions = {
+                banned_cards = {},
+                banned_tags = {},
+                banned_other = {}
+            }
         })
     end
-
-    SMODS.Stake({
-        key = 'test_stake',
-        applied_stakes = {'cry_brown', 'galdur_test_10'},
-        above_stake = ('galdur_test_10'),
-        pos = { x = 4, y = 1 },
-        loc_txt = {
-            name = 'Test Stake FINAL',
-            text = {
-            'Required {T:m_wild}score {T:e_foil}scales',
-            'faster for {T:j_jolly}each {C:attention}Ante'
-            }
-        },
-        sticker_pos = {x = 1, y = 0},
-        sticker_atlas = 'sticker',
-        shiny = true
-    })
 end
