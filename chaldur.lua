@@ -55,6 +55,16 @@ function Card:click()
     end
 end
 
+local exit_overlay = G.FUNCS.exit_overlay_menu
+-- Insert custom logic around the vanilla exit overlay logic
+G.FUNCS.exit_overlay_menu = function()
+    if Chaldur.config.use and (Galdur.run_setup.deck_select_areas or Chaldur.run_setup.stake_select_areas) then
+        clear_challenge_select_page()
+        clear_stake_select_page()
+    end
+    exit_overlay()
+end
+
 -- Update UI when a challenge is selected
 function Chaldur.select_challenge()
     -- Galdur.populate_deck_preview(Galdur.run_setup.choices.deck, silent)
