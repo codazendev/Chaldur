@@ -16,8 +16,8 @@ assert(SMODS.load_file('utils/CodaUtility.lua'))()
 -- Mod variable definitions
 Chaldur.challenge_setup = {
     choices = {
-        challenge = nil,
-        stake = nil,
+        challenge_id = nil,
+        stake_id = nil,
         seed = nil,
         seed_temp = ''
     },
@@ -43,17 +43,48 @@ local card_click_ref = Card.click
 -- Insert custom logic around the vanilla card click logic
 function Card:click()
     if self.params.challenge_card and self.config.center.unlocked then
-        Chaldur.challenge_setup.choices.challenge = Back(self.config.center)
+        if Chaldur.challenge_setup.choices.challenge_id == self.params.challenge_id then return end
+        Chaldur.challenge_setup.choices.challenge_id = self.params.challenge_id
         Chaldur.challenge_preview_text.preview_text = G.CHALLENGES[get_challenge_int_from_id(self.params.challenge_id)].name
         Chaldur.select_challenge()
     elseif self.params.stake_card and not self.params.stake_chip_locked then
-        Chaldur.challenge_setup.choices.stake = self.params.stake
-        Chaldur.stake_preview_text.preview_text = G.P_CENTER_POOLS.Stake[self.params.stake].name
+        if Chaldur.challenge_setup.choices.stake_id == self.params.stake_id then return end
+        Chaldur.challenge_setup.choices.stake_id = self.params.stake_id
+        Chaldur.stake_preview_text.preview_text = G.P_CENTER_POOLS.Stake[self.params.stake_id].name
         Chaldur.select_stake()
     else
         card_click_ref(self)
     end
 end
+
+-- Update UI when a challenge is selected
+function Chaldur.select_challenge()
+    local dyna_text_object = G.OVERLAY_MENU:get_UIE_by_ID('challenge_name').config.object
+    dyna_text_object.scale = 0.6 / math.max(1, string.len(Chaldur.challenge_preview_text.preview_text) / 16)
+    Chaldur.change_challenge_preview()
+end
+
+-- Update the challenge preview
+function Chaldur.change_challenge_preview()
+    local preview_area = G.OVERLAY_MENU:get_UIE_by_ID('challenge_area')
+    if not preview_area then return end
+    if preview_area.config.object then preview_area.config.object:remove() end
+    preview_area.config.object = UIBox{
+        definition = G.UIDEF.challenge_preview(Chaldur.challenge_setup.choices.challenge_id),
+        config = {align = 'cm', parent = preview_area}
+    }
+end
+
+function G.UIDEF.challenge_preview(_id)
+    local challenge_preview = {
+        n = G.UIT.C, nodes = {
+            {n = G.UIT.T, config = {text = _id, colour = G.C.WHITE, scale = .2}}
+        }
+    }
+
+    return challenge_preview
+end
+
 
 local exit_overlay = G.FUNCS.exit_overlay_menu
 -- Insert custom logic around the vanilla exit overlay logic
@@ -63,22 +94,6 @@ G.FUNCS.exit_overlay_menu = function()
         clear_stake_select_page()
     end
     exit_overlay()
-end
-
--- Update UI when a challenge is selected
-function Chaldur.select_challenge()
-    -- Galdur.populate_deck_preview(Galdur.run_setup.choices.deck, silent)
-
-    local dyna_text_object = G.OVERLAY_MENU:get_UIE_by_ID('challenge_name').config.object
-    dyna_text_object.scale = 0.6 / math.max(1, string.len(Chaldur.challenge_preview_text.preview_text) / 16)
-end
-
--- Update UI when a stake is selected
-function Chaldur.select_stake()
-    -- Galdur.populate_deck_preview(Galdur.run_setup.choices.deck, silent)
-
-    local dyna_text_object = G.OVERLAY_MENU:get_UIE_by_ID('stake_name').config.object
-    dyna_text_object.scale = 0.6 / math.max(1, string.len(Chaldur.stake_preview_text.preview_text) / 16)
 end
 
 -- ### UI Creation ###
@@ -127,7 +142,8 @@ function G.UIDEF.challenge_setup_option()
                                     })}}
                                 }},
                                 {n = G.UIT.R, config = {align = 'cm'}, nodes = {
-                                    {n = G.UIT.T, config = {text = 'Challenge Preview', colour = G.C.WHITE, scale = 0.4}},
+                                    -- {n = G.UIT.T, config = {text = 'Challenge Preview', colour = G.C.WHITE, scale = 0.4}},
+                                    {n=G.UIT.O, config = {id = 'challenge_area', object = Moveable()}}
                                 }}
                             }},
                         }},
@@ -332,7 +348,7 @@ function populate_stake_select_page(page)
             3.4*14/41,
             G.P_CENTERS.b_red,
             G.P_CENTERS.b_red,
-            {stake_card = true, stake = count})
+            {stake_card = true, stake_id = count})
         stake_card.sprite_facing = 'back'
         stake_card.facing = 'back'
         stake_card.children.back = Sprite(stake_card.T.x, stake_card.T.y, 3.4*14/41, 3.4*14/41, G.ASSET_ATLAS[G.P_CENTER_POOLS.Stake[count].atlas], G.P_CENTER_POOLS.Stake[count].pos)
@@ -398,13 +414,33 @@ if Chaldur.test_mode then
     end
 end
 
--- challenge previews need to communicate:
--- name
--- custom rules
--- modifier rules
--- jokers
--- consumeables
--- vouchers
--- banned cards
--- banned tags
--- banned other
+
+-- preview tabs
+-- rules
+-- vertical text at left of row: custom rules
+-- vertical text at left of row: modifiers
+
+-- starting items
+-- vertical text at left of row: jokers
+-- row with two columns: consumeables, vouchers
+
+-- restrictions
+-- vertical text at left of row: cards
+-- vertical text at left of row: tags
+-- vertical text at left of row: blinds
+
+-- i'm thinking popup can just have the custom rules
+
+
+--      probably remaining stuff
+-- storing and loading last challenge stuff
+-- new challenge deck arts
+-- preview challenge and stake somewhere so you know what you're signing up for
+-- preview selected challenge and stake on play button / last buttons
+-- randomization buttons
+-- seed input
+-- play button doing what it's supposed to
+-- hover popups for challenges and stakes
+-- showing challenges unlocked and challenges beat somewhere
+-- implement proper localization
+-- pretty up the ui with embosses, juice ups, whatever else
