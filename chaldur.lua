@@ -35,7 +35,7 @@ Chaldur.stake_preview_text = {
     preview_text = 'test'
 }
 
-Chaldur.test_mode = true
+Chaldur.test_mode = false
 
 -- ### Function Overrides ###
 
