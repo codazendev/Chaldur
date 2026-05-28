@@ -398,6 +398,42 @@ if Chaldur.test_mode then
     end
 end
 
+-- Start a run
+function Chaldur.start_run()
+    if not Chaldur.run_setup.choices.seed_select or Chaldur.run_setup.choices.seed == '' then
+        Chaldur.run_setup.choices.seed = nil
+    else
+        Chaldur.run_setup.choices.seed = Chaldur.run_setup.choices.seed_temp
+    end
+
+    -- G.PROFILES[G.SETTINGS.profile].MEMORY.deck = Galdur.run_setup.choices.deck.effect.center.name
+    -- G.PROFILES[G.SETTINGS.profile].MEMORY.stake = Galdur.run_setup.choices.stake
+
+    G.FUNCS.start_run(nil, Chaldur.run_setup.choices)
+end
+
+-- ### Button Definitions ###
+
+-- Select random challenge deck
+G.FUNCS.random_challenge_deck = function()
+    local selected = false
+    local available_challenge_decks = {}
+
+    for i=1, #G.CHALLENGES do
+        available_challenge_decks[#available_challenge_decks + 1] = i
+    end
+
+    while not selected do
+        local random = pseudorandom_element(available_challenge_decks, pseudoseed(os.time()))
+        selected = Back(G.P_CENTER_POOLS.Back[available_challenge_decks[random]])
+        if selected == Chaldur.challenge_setup.choices.challenge and #available_challenge_decks > 1 then selected = false end
+    end
+    play_sound('whoosh1', math.random()*0.2 + 0.9, 0.35)
+    Chaldur.run_setup.choices.deck = selected
+    Chaldur.set_new_deck()
+end
+
+
 -- challenge previews need to communicate:
 -- name
 -- custom rules
