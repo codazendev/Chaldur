@@ -35,7 +35,7 @@ Chaldur.stake_preview_text = {
     preview_text = 'test'
 }
 
-Chaldur.test_mode = true
+Chaldur.test_mode = false
 
 -- ### Function Overrides ###
 
@@ -195,11 +195,11 @@ function G.UIDEF.challenge_setup_option()
                 {n = G.UIT.R, -- ROW 3: Seed Input and Play
                 config = {align = 'cl'},
                 nodes = {
-                    {n = G.UIT.C, config = {align = 'cm', r = 0.1, minw = 8, minh = 1, colour = G.C.FILTER}, nodes = {
+                    {n = G.UIT.C, config = {align = 'cm', r = 0.1, minw = 8, minh = 0.5, colour = G.C.FILTER}, nodes = {
                         {n = G.UIT.T, config = {text = 'Seed Input', colour = G.C.WHITE, scale = 0.4}}
                     }},
                     {n = G.UIT.C, config = {minw = spacing}, nodes = {}},
-                    {n = G.UIT.C, config = {align = 'cm', r = 0.1, minw = 4, minh = 1, colour = G.C.ETERNAL}, nodes = {
+                    {n = G.UIT.C, config = {align = 'cm', r = 0.1, minw = 4, minh = 0.5, colour = G.C.ETERNAL}, nodes = {
                         {n = G.UIT.T, config = {text = 'Play', colour = G.C.WHITE, scale = 0.4}}
                     }}
                 }}
@@ -408,3 +408,8 @@ end
 -- banned cards
 -- banned tags
 -- banned other
+
+
+-- Future cool features:
+-- Challenge creation screen
+-- Sharing challenges
