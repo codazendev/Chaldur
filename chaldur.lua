@@ -19,7 +19,10 @@ Chaldur.challenge_setup = {
         challenge = nil,
         stake = nil,
         seed = nil,
-        seed_temp = ''
+        seed_temp = '',
+        deck = {
+            type = 'Challenge Deck'
+        }
     },
     challenge_select_areas = {},
     current_challenge_page = 1,
@@ -58,7 +61,7 @@ end
 local exit_overlay = G.FUNCS.exit_overlay_menu
 -- Insert custom logic around the vanilla exit overlay logic
 G.FUNCS.exit_overlay_menu = function()
-    if Chaldur.config.use and (Galdur.run_setup.deck_select_areas or Chaldur.run_setup.stake_select_areas) then
+    if Chaldur.config.use and (Chaldur.challenge_setup.challenge_select_areas or Chaldur.challenge_setup.stake_select_areas) then
         clear_challenge_select_page()
         clear_stake_select_page()
     end
@@ -67,15 +70,16 @@ end
 
 -- Update UI when a challenge is selected
 function Chaldur.select_challenge()
-    -- Galdur.populate_deck_preview(Galdur.run_setup.choices.deck, silent)
+    -- Galdur.populate_deck_preview(Chaldur.challenge_setup.choices.challenge.deck, silent)
 
     local dyna_text_object = G.OVERLAY_MENU:get_UIE_by_ID('challenge_name').config.object
     dyna_text_object.scale = 0.6 / math.max(1, string.len(Chaldur.challenge_preview_text.preview_text) / 16)
+    sendDebugMessage(tostring(Chaldur.challenge_setup.choices), 'ChaldurLogger')
 end
 
 -- Update UI when a stake is selected
 function Chaldur.select_stake()
-    -- Galdur.populate_deck_preview(Galdur.run_setup.choices.deck, silent)
+    -- Galdur.populate_stake_preview(Chaldur.challenge_setup.choices.stake, silent)
 
     local dyna_text_object = G.OVERLAY_MENU:get_UIE_by_ID('stake_name').config.object
     dyna_text_object.scale = 0.6 / math.max(1, string.len(Chaldur.stake_preview_text.preview_text) / 16)
@@ -133,10 +137,10 @@ function G.UIDEF.challenge_setup_option()
                         }},
                         {n = G.UIT.R, config = {minh = spacing}, nodes = {}},
                         {n = G.UIT.R, config = {align = 'cm', r = 0.1, padding = spacing, colour = G.C.BLACK}, nodes = {
-                            {n = G.UIT.C, config = {align = 'cm', r = 0.1, minw = 2, minh = 0.5, colour = G.C.CHANCE}, nodes = {
+                            {n = G.UIT.C, config = {align = 'cm', r = 0.1, minw = 2, minh = 0.5, colour = G.C.CHANCE, button = 'random_challenge_deck'}, nodes = {
                                 {n = G.UIT.T, config = {text = 'Random', colour = G.C.WHITE, scale = 0.4}}
                             }},
-                            {n = G.UIT.C, config = {align = 'cm', r = 0.1, minw = 2, minh = 0.5, colour = G.C.CHIPS}, nodes = {
+                            {n = G.UIT.C, config = {align = 'cm', r = 0.1, minw = 2, minh = 0.5, colour = G.C.CHIPS, button = 'last_challenge_deck'}, nodes = {
                                 {n = G.UIT.T, config = {text = 'Last', colour = G.C.WHITE, scale = 0.4}}
                             }}
                         }}
@@ -182,10 +186,10 @@ function G.UIDEF.challenge_setup_option()
                         }},
                         {n = G.UIT.R, config = {minh = spacing}, nodes = {}},
                         {n = G.UIT.R, config = {align = 'cm', r = 0.1, padding = spacing, colour = G.C.BLACK}, nodes = {
-                            {n = G.UIT.C, config = {align = 'cm', r = 0.1, minw = 2, minh = 0.5, colour = G.C.CHANCE}, nodes = {
+                            {n = G.UIT.C, config = {align = 'cm', r = 0.1, minw = 2, minh = 0.5, colour = G.C.CHANCE, button = 'random_stake'}, nodes = {
                                 {n = G.UIT.T, config = {text = 'Random', colour = G.C.WHITE, scale = 0.4}}
                             }},
-                            {n = G.UIT.C, config = {align = 'cm', r = 0.1, minw = 2, minh = 0.5, colour = G.C.CHIPS}, nodes = {
+                            {n = G.UIT.C, config = {align = 'cm', r = 0.1, minw = 2, minh = 0.5, colour = G.C.CHIPS, button = 'last_stake'}, nodes = {
                                 {n = G.UIT.T, config = {text = 'Last', colour = G.C.WHITE, scale = 0.4}}
                             }}
                         }}
@@ -199,7 +203,7 @@ function G.UIDEF.challenge_setup_option()
                         {n = G.UIT.T, config = {text = 'Seed Input', colour = G.C.WHITE, scale = 0.4}}
                     }},
                     {n = G.UIT.C, config = {minw = spacing}, nodes = {}},
-                    {n = G.UIT.C, config = {align = 'cm', r = 0.1, minw = 4, minh = 0.5, colour = G.C.ETERNAL}, nodes = {
+                    {n = G.UIT.C, config = {align = 'cm', r = 0.1, minw = 4, minh = 0.5, colour = G.C.ETERNAL, button = 'start_run'}, nodes = {
                         {n = G.UIT.T, config = {text = 'Play', colour = G.C.WHITE, scale = 0.4}}
                     }}
                 }}
@@ -400,16 +404,17 @@ end
 
 -- Start a run
 function Chaldur.start_run()
-    if not Chaldur.run_setup.choices.seed_select or Chaldur.run_setup.choices.seed == '' then
-        Chaldur.run_setup.choices.seed = nil
+    if not Chaldur.challenge_setup.choices.seed_select or Chaldur.challenge_setup.choices.seed == '' then
+        Chaldur.challenge_setup.choices.seed = nil
     else
-        Chaldur.run_setup.choices.seed = Chaldur.run_setup.choices.seed_temp
+        Chaldur.challenge_setup.choices.seed = Chaldur.challenge_setup.choices.seed_temp
     end
 
-    -- G.PROFILES[G.SETTINGS.profile].MEMORY.deck = Galdur.run_setup.choices.deck.effect.center.name
-    -- G.PROFILES[G.SETTINGS.profile].MEMORY.stake = Galdur.run_setup.choices.stake
+    -- G.PROFILES[G.SETTINGS.profile].MEMORY.deck = Galdur.challenge_setup.choices.challenge.deck.effect.center.name
+    -- G.PROFILES[G.SETTINGS.profile].MEMORY.stake = Galdur.challenge_setup.choices.stake
 
-    G.FUNCS.start_run(nil, Chaldur.run_setup.choices)
+    sendDebugMessage(tostring(Chaldur.challenge_setup.choices), 'ChaldurLogger')
+    G.FUNCS.start_run(nil, {stake = Chaldur.challenge_setup.choices.stake, challenge = G.CHALLENGES[Chaldur.challenge_setup.choices.challenge]})
 end
 
 -- ### Button Definitions ###
@@ -418,19 +423,60 @@ end
 G.FUNCS.random_challenge_deck = function()
     local selected = false
     local available_challenge_decks = {}
-
+    
     for i=1, #G.CHALLENGES do
         available_challenge_decks[#available_challenge_decks + 1] = i
     end
 
     while not selected do
         local random = pseudorandom_element(available_challenge_decks, pseudoseed(os.time()))
-        selected = Back(G.P_CENTER_POOLS.Back[available_challenge_decks[random]])
+        selected = available_challenge_decks[random]
         if selected == Chaldur.challenge_setup.choices.challenge and #available_challenge_decks > 1 then selected = false end
     end
     play_sound('whoosh1', math.random()*0.2 + 0.9, 0.35)
-    Chaldur.run_setup.choices.deck = selected
-    Chaldur.set_new_deck()
+    Chaldur.challenge_setup.choices.challenge = G.CHALLENGES[selected]
+    Chaldur.challenge_preview_text.preview_text = G.CHALLENGES[selected].name
+    Chaldur.select_challenge()
+end
+
+-- Select last challenge
+G.FUNCS.last_challenge_deck = function ()
+    
+end
+
+-- Select random stake
+G.FUNCS.random_stake = function()
+    local available_stakes = {}
+    for i=1, #G.P_CENTER_POOLS.Stake do
+        local unlocked = true
+        local save_data = G.PROFILES[G.SETTINGS.profile].deck_usage[Galdur.run_setup.choices.deck.effect.center.key] and G.PROFILES[G.SETTINGS.profile].deck_usage[Galdur.run_setup.choices.deck.effect.center.key].wins_by_key or {}
+        for _,v in ipairs(G.P_CENTER_POOLS.Stake[i].applied_stakes) do
+            if not G.PROFILES[G.SETTINGS.profile].all_unlocked and not Galdur.config.unlock_all and (not save_data or (save_data and not save_data[v])) then
+                unlocked = false
+            end
+        end
+        if save_data and save_data[G.P_CENTER_POOLS.Stake[i].key] then
+            unlocked = true
+        end
+        if unlocked then
+            available_stakes[#available_stakes + 1] = i
+        end
+    end
+    local selected = false
+    while not selected do
+        local random = pseudorandom_element(available_stakes, pseudoseed(os.time()))
+        selected = available_stakes[random]
+        if selected == Chaldur.challenge_setup.choices.stake and #available_stakes > 1 then selected = false end
+    end
+    play_sound('whoosh1', math.random()*0.2 + 0.9, 0.35)
+    Chaldur.challenge_setup.choices.stake = selected
+    Chaldur.stake_preview_text.preview_text = selected.name
+    Chaldur.select_stake()
+end
+
+-- Select last stake
+G.FUNCS.last_stake = function ()
+    
 end
 
 
