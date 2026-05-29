@@ -101,7 +101,6 @@ function G.UIDEF.challenge_setup_option()
                         {n = G.UIT.R, config = {align = 'cm', r = 0.1, minw = 4, colour = G.C.BLACK}, nodes = {
                             {n = G.UIT.C, config = {align = 'cm'}, nodes = {
                                 {n = G.UIT.R, config = {align = 'cm', minh = 1}, nodes = {
-                                    -- {n = G.UIT.T, config = {text = 'Challenge Name', colour = G.C.WHITE, scale = 0.4}},
                                     {n=G.UIT.O, config = {id = 'challenge_name', object = DynaText({
                                         string = {{ref_table = Chaldur.challenge_preview_text, ref_value = 'preview_text'}},
                                         scale = 0.6 / math.max(1, string.len(Chaldur.challenge_preview_text.preview_text) / 16),
@@ -150,7 +149,6 @@ function G.UIDEF.challenge_setup_option()
                         {n = G.UIT.R, config = {align = 'cm', r = 0.1, minw = 4, colour = G.C.BLACK}, nodes = {
                             {n = G.UIT.C, config = {align = 'cm'}, nodes = {
                                 {n = G.UIT.R, config = {align = 'cm', minh = 1}, nodes = {
-                                    -- {n = G.UIT.T, config = {text = 'Stake Name', colour = G.C.WHITE, scale = 0.4}},
                                     {n=G.UIT.O, config = {id = 'stake_name', object = DynaText({
                                         string = {{ref_table = Chaldur.stake_preview_text, ref_value = 'preview_text'}},
                                         scale = 0.6 / math.max(1, string.len(Chaldur.stake_preview_text.preview_text) / 16),
@@ -428,6 +426,7 @@ function Chaldur.select_stake()
     dyna_text_object.scale = 0.6 / math.max(1, string.len(Chaldur.stake_preview_text.preview_text) / 16)
 end
 
+-- Start run button callback function
 G.FUNCS.play_challenge = function()
     Chaldur.start_run()
 end
@@ -442,8 +441,6 @@ function Chaldur.start_run()
 
     -- G.PROFILES[G.SETTINGS.profile].MEMORY.deck = Galdur.challenge_setup.choices.challenge.deck.effect.center.name
     -- G.PROFILES[G.SETTINGS.profile].MEMORY.stake = Galdur.challenge_setup.choices.stake
-    print(Chaldur.challenge_setup.choices.challenge)
-    print(Chaldur.challenge_setup.choices.stake)
     G.FUNCS.start_run(nil, Chaldur.challenge_setup.choices)
 end
 
