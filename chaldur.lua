@@ -352,20 +352,20 @@ end
 
 -- Select random challenge deck
 G.FUNCS.random_challenge_deck = function()
-    local selected = false
+    local challenge_num = false
     local available_challenge_decks = {}
     
     for i=1, #G.CHALLENGES do
         available_challenge_decks[#available_challenge_decks + 1] = i
     end
 
-    while not selected do
+    while not challenge_num do
         local random = pseudorandom_element(available_challenge_decks, pseudoseed(os.time()))
-        selected = available_challenge_decks[random]
-        if selected == Chaldur.challenge_setup.choices.challenge and #available_challenge_decks > 1 then selected = false end
+        challenge_num = available_challenge_decks[random]
+        if G.CHALLENGES[challenge_num] == Chaldur.challenge_setup.choices.challenge and #available_challenge_decks > 1 then challenge_num = false end
     end
     play_sound('whoosh1', math.random()*0.2 + 0.9, 0.35)
-    Chaldur.select_challenge(selected)
+    Chaldur.select_challenge(challenge_num)
 end
 
 -- Select last challenge
@@ -399,14 +399,14 @@ G.FUNCS.random_stake = function()
             available_stakes[#available_stakes + 1] = i
         end
     end
-    local selected = false
-    while not selected do
+    local stake_num = false
+    while not stake_num do
         local random = pseudorandom_element(available_stakes, pseudoseed(os.time()))
-        selected = available_stakes[random]
-        if selected == Chaldur.challenge_setup.choices.stake and #available_stakes > 1 then selected = false end
+        stake_num = available_stakes[random]
+        if stake_num == Chaldur.challenge_setup.choices.stake and #available_stakes > 1 then stake_num = false end
     end
     play_sound('whoosh1', math.random()*0.2 + 0.9, 0.35)
-    Chaldur.select_stake(selected)
+    Chaldur.select_stake(stake_num)
 end
 
 -- Select last stake
@@ -468,6 +468,7 @@ end
 
 
 -- challenge previews need to communicate:
+-- has it been completed yet
 -- name
 -- custom rules
 -- modifier rules
