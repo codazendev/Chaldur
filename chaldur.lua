@@ -16,13 +16,10 @@ assert(SMODS.load_file('utils/CodaUtility.lua'))()
 -- Mod variable definitions
 Chaldur.challenge_setup = {
     choices = {
-        challenge = nil,
-        stake = nil,
+        challenge = G.CHALLENGES[1],
+        stake = 1,
         seed = nil,
-        seed_temp = '',
-        deck = {
-            type = 'Challenge Deck'
-        }
+        seed_temp = ''
     },
     challenge_select_areas = {},
     current_challenge_page = 1,
@@ -46,7 +43,7 @@ local card_click_ref = Card.click
 -- Insert custom logic around the vanilla card click logic
 function Card:click()
     if self.params.challenge_card and self.config.center.unlocked then
-        Chaldur.challenge_setup.choices.challenge = Back(self.config.center)
+        Chaldur.challenge_setup.choices.challenge = G.CHALLENGES[get_challenge_int_from_id(self.params.challenge_id)]
         Chaldur.challenge_preview_text.preview_text = G.CHALLENGES[get_challenge_int_from_id(self.params.challenge_id)].name
         Chaldur.select_challenge()
     elseif self.params.stake_card and not self.params.stake_chip_locked then
@@ -66,23 +63,6 @@ G.FUNCS.exit_overlay_menu = function()
         clear_stake_select_page()
     end
     exit_overlay()
-end
-
--- Update UI when a challenge is selected
-function Chaldur.select_challenge()
-    -- Galdur.populate_deck_preview(Chaldur.challenge_setup.choices.challenge.deck, silent)
-
-    local dyna_text_object = G.OVERLAY_MENU:get_UIE_by_ID('challenge_name').config.object
-    dyna_text_object.scale = 0.6 / math.max(1, string.len(Chaldur.challenge_preview_text.preview_text) / 16)
-    sendDebugMessage(tostring(Chaldur.challenge_setup.choices), 'ChaldurLogger')
-end
-
--- Update UI when a stake is selected
-function Chaldur.select_stake()
-    -- Galdur.populate_stake_preview(Chaldur.challenge_setup.choices.stake, silent)
-
-    local dyna_text_object = G.OVERLAY_MENU:get_UIE_by_ID('stake_name').config.object
-    dyna_text_object.scale = 0.6 / math.max(1, string.len(Chaldur.stake_preview_text.preview_text) / 16)
 end
 
 -- ### UI Creation ###
@@ -203,7 +183,7 @@ function G.UIDEF.challenge_setup_option()
                         {n = G.UIT.T, config = {text = 'Seed Input', colour = G.C.WHITE, scale = 0.4}}
                     }},
                     {n = G.UIT.C, config = {minw = spacing}, nodes = {}},
-                    {n = G.UIT.C, config = {align = 'cm', r = 0.1, minw = 4, minh = 0.5, colour = G.C.ETERNAL, button = 'start_run'}, nodes = {
+                    {n = G.UIT.C, config = {align = 'cm', r = 0.1, minw = 4, minh = 0.5, colour = G.C.ETERNAL, button = 'play_challenge'}, nodes = {
                         {n = G.UIT.T, config = {text = 'Play', colour = G.C.WHITE, scale = 0.4}}
                     }}
                 }}
@@ -376,49 +356,6 @@ G.FUNCS.change_stake_select_page = function(args)
     populate_stake_select_page(args.to)
 end
 
--- Testing code
-if Chaldur.test_mode then
-    for i = 1, 24 do
-        SMODS.Challenge({
-            key = 'test_challenge_'..i,
-            name = 'Test Challenge '..i,
-            id = 'test_challenge'..i,
-            rules = {
-                custom = {},
-                modifiers = {}
-            },
-            jokers = {},
-            consumeables = {},
-            vouchers = {},
-            deck = {
-                type = 'Challenge Deck'
-            },
-            restrictions = {
-                banned_cards = {},
-                banned_tags = {},
-                banned_other = {}
-            }
-        })
-    end
-end
-
--- Start a run
-function Chaldur.start_run()
-    if not Chaldur.challenge_setup.choices.seed_select or Chaldur.challenge_setup.choices.seed == '' then
-        Chaldur.challenge_setup.choices.seed = nil
-    else
-        Chaldur.challenge_setup.choices.seed = Chaldur.challenge_setup.choices.seed_temp
-    end
-
-    -- G.PROFILES[G.SETTINGS.profile].MEMORY.deck = Galdur.challenge_setup.choices.challenge.deck.effect.center.name
-    -- G.PROFILES[G.SETTINGS.profile].MEMORY.stake = Galdur.challenge_setup.choices.stake
-
-    sendDebugMessage(tostring(Chaldur.challenge_setup.choices), 'ChaldurLogger')
-    G.FUNCS.start_run(nil, {stake = Chaldur.challenge_setup.choices.stake, challenge = G.CHALLENGES[Chaldur.challenge_setup.choices.challenge]})
-end
-
--- ### Button Definitions ###
-
 -- Select random challenge deck
 G.FUNCS.random_challenge_deck = function()
     local selected = false
@@ -440,8 +377,14 @@ G.FUNCS.random_challenge_deck = function()
 end
 
 -- Select last challenge
-G.FUNCS.last_challenge_deck = function ()
+G.FUNCS.last_challenge_deck = function()
     
+end
+
+-- Update UI when a challenge is selected
+function Chaldur.select_challenge()
+    local dyna_text_object = G.OVERLAY_MENU:get_UIE_by_ID('challenge_name').config.object
+    dyna_text_object.scale = 0.6 / math.max(1, string.len(Chaldur.challenge_preview_text.preview_text) / 16)
 end
 
 -- Select random stake
@@ -470,13 +413,64 @@ G.FUNCS.random_stake = function()
     end
     play_sound('whoosh1', math.random()*0.2 + 0.9, 0.35)
     Chaldur.challenge_setup.choices.stake = selected
-    Chaldur.stake_preview_text.preview_text = selected.name
+    Chaldur.stake_preview_text.preview_text = G.P_CENTER_POOLS.Stake[selected].name
     Chaldur.select_stake()
 end
 
 -- Select last stake
-G.FUNCS.last_stake = function ()
+G.FUNCS.last_stake = function()
     
+end
+
+-- Update UI when a stake is selected
+function Chaldur.select_stake()
+    local dyna_text_object = G.OVERLAY_MENU:get_UIE_by_ID('stake_name').config.object
+    dyna_text_object.scale = 0.6 / math.max(1, string.len(Chaldur.stake_preview_text.preview_text) / 16)
+end
+
+G.FUNCS.play_challenge = function()
+    Chaldur.start_run()
+end
+
+-- Start a run
+function Chaldur.start_run()
+    if not Chaldur.challenge_setup.choices.seed_select or Chaldur.challenge_setup.choices.seed == '' then
+        Chaldur.challenge_setup.choices.seed = nil
+    else
+        Chaldur.challenge_setup.choices.seed = Chaldur.challenge_setup.choices.seed_temp
+    end
+
+    -- G.PROFILES[G.SETTINGS.profile].MEMORY.deck = Galdur.challenge_setup.choices.challenge.deck.effect.center.name
+    -- G.PROFILES[G.SETTINGS.profile].MEMORY.stake = Galdur.challenge_setup.choices.stake
+    print(Chaldur.challenge_setup.choices.challenge)
+    print(Chaldur.challenge_setup.choices.stake)
+    G.FUNCS.start_run(nil, Chaldur.challenge_setup.choices)
+end
+
+-- Testing code
+if Chaldur.test_mode then
+    for i = 1, 24 do
+        SMODS.Challenge({
+            key = 'test_challenge_'..i,
+            name = 'Test Challenge '..i,
+            id = 'test_challenge'..i,
+            rules = {
+                custom = {},
+                modifiers = {}
+            },
+            jokers = {},
+            consumeables = {},
+            vouchers = {},
+            deck = {
+                type = 'Challenge Deck'
+            },
+            restrictions = {
+                banned_cards = {},
+                banned_tags = {},
+                banned_other = {}
+            }
+        })
+    end
 end
 
 
