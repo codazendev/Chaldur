@@ -160,10 +160,10 @@ function G.UIDEF.challenge_setup_option()
                         }},
                         {n = G.UIT.R, config = {minh = spacing}, nodes = {}},
                         {n = G.UIT.R, config = {align = 'cm', r = 0.1, padding = spacing, colour = G.C.BLACK}, nodes = {
-                            {n = G.UIT.C, config = {align = 'cm', r = 0.1, minw = 2, minh = 0.5, colour = G.C.CHANCE, button = 'random_stake'}, nodes = {
+                            {n = G.UIT.C, config = {align = 'cm', r = 0.1, minw = 2, minh = 0.5, colour = G.C.CHANCE, button = 'random_challenge_stake'}, nodes = {
                                 {n = G.UIT.T, config = {text = 'Random', colour = G.C.WHITE, scale = 0.4}}
                             }},
-                            {n = G.UIT.C, config = {align = 'cm', r = 0.1, minw = 2, minh = 0.5, colour = G.C.CHIPS, button = 'last_stake'}, nodes = {
+                            {n = G.UIT.C, config = {align = 'cm', r = 0.1, minw = 2, minh = 0.5, colour = G.C.CHIPS, button = 'last_challenge_stake'}, nodes = {
                                 {n = G.UIT.T, config = {text = 'Last', colour = G.C.WHITE, scale = 0.4}}
                             }}
                         }}
@@ -364,7 +364,6 @@ G.FUNCS.random_challenge_deck = function()
         challenge_num = available_challenge_decks[random]
         if G.CHALLENGES[challenge_num] == Chaldur.challenge_setup.choices.challenge and #available_challenge_decks > 1 then challenge_num = false end
     end
-    play_sound('whoosh1', math.random()*0.2 + 0.9, 0.35)
     Chaldur.select_challenge(challenge_num)
 end
 
@@ -375,6 +374,7 @@ end
 
 -- Update UI when a challenge is selected
 function Chaldur.select_challenge(challenge_num)
+    play_sound('whoosh1', math.random()*0.2 + 0.9, 0.35)
     Chaldur.challenge_setup.choices.challenge = G.CHALLENGES[challenge_num]
     Chaldur.challenge_preview_text.preview_text = G.CHALLENGES[challenge_num].name
     local dyna_text_object = G.OVERLAY_MENU:get_UIE_by_ID('challenge_name').config.object
@@ -382,7 +382,7 @@ function Chaldur.select_challenge(challenge_num)
 end
 
 -- Select random stake
-G.FUNCS.random_stake = function()
+G.FUNCS.random_challenge_stake = function()
     local available_stakes = {}
     for i=1, #G.P_CENTER_POOLS.Stake do
         local unlocked = true
@@ -405,17 +405,17 @@ G.FUNCS.random_stake = function()
         stake_num = available_stakes[random]
         if stake_num == Chaldur.challenge_setup.choices.stake and #available_stakes > 1 then stake_num = false end
     end
-    play_sound('whoosh1', math.random()*0.2 + 0.9, 0.35)
     Chaldur.select_stake(stake_num)
 end
 
 -- Select last stake
-G.FUNCS.last_stake = function()
+G.FUNCS.last_challenge_stake = function()
     
 end
 
 -- Update UI when a stake is selected
 function Chaldur.select_stake(stake_num)
+    play_sound('whoosh1', math.random()*0.2 + 0.9, 0.35)
     Chaldur.challenge_setup.choices.stake = stake_num
     Chaldur.stake_preview_text.preview_text = G.P_CENTER_POOLS.Stake[stake_num].name
     local dyna_text_object = G.OVERLAY_MENU:get_UIE_by_ID('stake_name').config.object
