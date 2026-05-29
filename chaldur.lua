@@ -43,13 +43,9 @@ local card_click_ref = Card.click
 -- Insert custom logic around the vanilla card click logic
 function Card:click()
     if self.params.challenge_card and self.config.center.unlocked then
-        Chaldur.challenge_setup.choices.challenge = G.CHALLENGES[get_challenge_int_from_id(self.params.challenge_id)]
-        Chaldur.challenge_preview_text.preview_text = G.CHALLENGES[get_challenge_int_from_id(self.params.challenge_id)].name
-        Chaldur.select_challenge()
+        Chaldur.select_challenge(get_challenge_int_from_id(self.params.challenge_id))
     elseif self.params.stake_card and not self.params.stake_chip_locked then
-        Chaldur.challenge_setup.choices.stake = self.params.stake
-        Chaldur.stake_preview_text.preview_text = G.P_CENTER_POOLS.Stake[self.params.stake].name
-        Chaldur.select_stake()
+        Chaldur.select_stake(self.params.stake)
     else
         card_click_ref(self)
     end
@@ -369,9 +365,7 @@ G.FUNCS.random_challenge_deck = function()
         if selected == Chaldur.challenge_setup.choices.challenge and #available_challenge_decks > 1 then selected = false end
     end
     play_sound('whoosh1', math.random()*0.2 + 0.9, 0.35)
-    Chaldur.challenge_setup.choices.challenge = G.CHALLENGES[selected]
-    Chaldur.challenge_preview_text.preview_text = G.CHALLENGES[selected].name
-    Chaldur.select_challenge()
+    Chaldur.select_challenge(selected)
 end
 
 -- Select last challenge
@@ -380,7 +374,9 @@ G.FUNCS.last_challenge_deck = function()
 end
 
 -- Update UI when a challenge is selected
-function Chaldur.select_challenge()
+function Chaldur.select_challenge(challenge_num)
+    Chaldur.challenge_setup.choices.challenge = G.CHALLENGES[challenge_num]
+    Chaldur.challenge_preview_text.preview_text = G.CHALLENGES[challenge_num].name
     local dyna_text_object = G.OVERLAY_MENU:get_UIE_by_ID('challenge_name').config.object
     dyna_text_object.scale = 0.6 / math.max(1, string.len(Chaldur.challenge_preview_text.preview_text) / 16)
 end
@@ -410,9 +406,7 @@ G.FUNCS.random_stake = function()
         if selected == Chaldur.challenge_setup.choices.stake and #available_stakes > 1 then selected = false end
     end
     play_sound('whoosh1', math.random()*0.2 + 0.9, 0.35)
-    Chaldur.challenge_setup.choices.stake = selected
-    Chaldur.stake_preview_text.preview_text = G.P_CENTER_POOLS.Stake[selected].name
-    Chaldur.select_stake()
+    Chaldur.select_stake(selected)
 end
 
 -- Select last stake
@@ -421,7 +415,9 @@ G.FUNCS.last_stake = function()
 end
 
 -- Update UI when a stake is selected
-function Chaldur.select_stake()
+function Chaldur.select_stake(stake_num)
+    Chaldur.challenge_setup.choices.stake = stake_num
+    Chaldur.stake_preview_text.preview_text = G.P_CENTER_POOLS.Stake[stake_num].name
     local dyna_text_object = G.OVERLAY_MENU:get_UIE_by_ID('stake_name').config.object
     dyna_text_object.scale = 0.6 / math.max(1, string.len(Chaldur.stake_preview_text.preview_text) / 16)
 end
@@ -439,8 +435,8 @@ function Chaldur.start_run()
         Chaldur.challenge_setup.choices.seed = Chaldur.challenge_setup.choices.seed_temp
     end
 
-    -- G.PROFILES[G.SETTINGS.profile].MEMORY.deck = Galdur.challenge_setup.choices.challenge.deck.effect.center.name
-    -- G.PROFILES[G.SETTINGS.profile].MEMORY.stake = Galdur.challenge_setup.choices.stake
+    -- G.PROFILES[G.SETTINGS.profile].MEMORY.deck = Chaldur.challenge_setup.choices.challenge.deck.effect.center.name
+    -- G.PROFILES[G.SETTINGS.profile].MEMORY.stake = Chaldur.challenge_setup.choices.stake
     G.FUNCS.start_run(nil, Chaldur.challenge_setup.choices)
 end
 
