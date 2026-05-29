@@ -385,19 +385,20 @@ end
 G.FUNCS.random_challenge_stake = function()
     local available_stakes = {}
     for i=1, #G.P_CENTER_POOLS.Stake do
-        local unlocked = true
-        local save_data = G.PROFILES[G.SETTINGS.profile].deck_usage[Galdur.run_setup.choices.deck.effect.center.key] and G.PROFILES[G.SETTINGS.profile].deck_usage[Galdur.run_setup.choices.deck.effect.center.key].wins_by_key or {}
-        for _,v in ipairs(G.P_CENTER_POOLS.Stake[i].applied_stakes) do
-            if not G.PROFILES[G.SETTINGS.profile].all_unlocked and not Galdur.config.unlock_all and (not save_data or (save_data and not save_data[v])) then
-                unlocked = false
-            end
-        end
-        if save_data and save_data[G.P_CENTER_POOLS.Stake[i].key] then
-            unlocked = true
-        end
-        if unlocked then
-            available_stakes[#available_stakes + 1] = i
-        end
+        available_stakes[#available_stakes + 1] = i
+        -- local unlocked = true
+        -- local save_data = G.PROFILES[G.SETTINGS.profile].deck_usage[Chaldur.challenge_setup.choices.challenge.deck.effect.center.key] and G.PROFILES[G.SETTINGS.profile].deck_usage[Chaldur.challenge_setup.choices.challenge.deck.effect.center.key].wins_by_key or {}
+        -- for _,v in ipairs(G.P_CENTER_POOLS.Stake[i].applied_stakes) do
+        --     if not G.PROFILES[G.SETTINGS.profile].all_unlocked and not Chaldur.config.unlock_all and (not save_data or (save_data and not save_data[v])) then
+        --         unlocked = false
+        --     end
+        -- end
+        -- if save_data and save_data[G.P_CENTER_POOLS.Stake[i].key] then
+        --     unlocked = true
+        -- end
+        -- if unlocked then
+        --     available_stakes[#available_stakes + 1] = i
+        -- end
     end
     local stake_num = false
     while not stake_num do
